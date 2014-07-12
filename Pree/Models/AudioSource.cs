@@ -53,6 +53,11 @@ namespace Pree.Models
             }
         }
 
+        public void Reset()
+        {
+            _elapsedTime.Value = TimeSpan.Zero;
+        }
+
         public void StartRecording()
         {
             _waveIn = new WaveIn();

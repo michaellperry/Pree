@@ -131,6 +131,7 @@ namespace Pree.ViewModels
         {
             if (_audioSource.Recording)
                 _audioSource.StopRecording();
+            _audioSource.Reset();
 
             _audioTarget.CloseFile();
         }
