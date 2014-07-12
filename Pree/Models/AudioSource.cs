@@ -61,6 +61,7 @@ namespace Pree.Models
         public void StartRecording()
         {
             _waveIn = new WaveIn();
+            _waveIn.WaveFormat = new WaveFormat(44100, 32, 1);
             WaveInProvider waveInProvider = new WaveInProvider(_waveIn);
             _sampleProvider = waveInProvider.ToSampleProvider();
 

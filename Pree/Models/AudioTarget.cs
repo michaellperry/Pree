@@ -25,7 +25,12 @@ namespace Pree.Models
             {
                 using (var waveIn = new WaveIn())
                 {
-                    _writer = new WaveFileWriter(destination, waveIn.WaveFormat);
+                    WaveFormat waveFormat = new WaveFormat(44100, 32, 1);
+                    var bitePerSample = waveFormat.BitsPerSample;
+                    int channels = waveFormat.Channels;
+                    int sampleRate = waveFormat.SampleRate;
+
+                    _writer = new WaveFileWriter(destination, waveFormat);
                 }
             }
 
