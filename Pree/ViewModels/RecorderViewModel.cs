@@ -113,14 +113,11 @@ namespace Pree.ViewModels
 
         private void StartSession()
         {
-            string documentsFolder = Environment.GetFolderPath(
-                Environment.SpecialFolder.MyDocuments);
             SaveFileDialog dialog = new SaveFileDialog()
             {
                 OverwritePrompt = true,
                 DefaultExt = "wav",
-                Filter = "Wave files (*.wav)|*.wav|All files (*.*)|*.*",
-                InitialDirectory = documentsFolder
+                Filter = "Wave files (*.wav)|*.wav|All files (*.*)|*.*"
             };
             bool? result = dialog.ShowDialog();
 
