@@ -5,6 +5,8 @@ using UpdateControls.XAML;
 using System;
 using UpdateControls.Fields;
 using System.Windows.Threading;
+using System.Collections.Generic;
+using NAudio.Wave;
 
 namespace Pree.ViewModels
 {
@@ -12,12 +14,17 @@ namespace Pree.ViewModels
     {
         private readonly AudioSource _audioSource;
         private readonly AudioTarget _audioTarget;
+        private readonly RecordingSettings _recordingSettings;
 
         private Independent<DateTime> _now = new Independent<DateTime>(DateTime.Now);
         private DispatcherTimer _timer;
-
-        public RecorderViewModel(AudioSource audioSource, AudioTarget audioTarget)
+        
+        public RecorderViewModel(
+            AudioSource audioSource,
+            AudioTarget audioTarget,
+            RecordingSettings recordingSettings)
         {
+            _recordingSettings = recordingSettings;
             _audioSource = audioSource;
             _audioTarget = audioTarget;
 
@@ -26,6 +33,39 @@ namespace Pree.ViewModels
                 Interval = TimeSpan.FromSeconds(1.0)
             };
             _timer.Tick += TimerTick;
+        }
+
+        public IEnumerable<DeviceViewModel> Devices
+        {
+            get
+            {
+                for (int deviceIndex = 0; deviceIndex < WaveIn.DeviceCount; deviceIndex++)
+                {
+                    yield return GetDeviceViewModel(deviceIndex);
+                }
+            }
+        }
+
+        public DeviceViewModel SelectedDevice
+        {
+            get { return GetDeviceViewModel(_recordingSettings.DeviceIndex); }
+            set
+            {
+                _recordingSettings.DeviceIndex = value.DeviceIndex;
+                _recordingSettings.Channels = value.Channels;
+            }
+        }
+
+        public int BitsPerSample
+        {
+            get { return _recordingSettings.BitsPerSample; }
+            set { _recordingSettings.BitsPerSample = value; }
+        }
+
+        public int SampleRate
+        {
+            get { return _recordingSettings.SampleRate; }
+            set { _recordingSettings.SampleRate = value; }
         }
 
         public ICommand Start
@@ -111,6 +151,11 @@ namespace Pree.ViewModels
             _timer.Tick -= TimerTick;
         }
 
+        private static DeviceViewModel GetDeviceViewModel(int deviceIndex)
+        {
+            return new DeviceViewModel(deviceIndex, WaveIn.GetCapabilities(deviceIndex));
+        }
+
         private void StartSession()
         {
             SaveFileDialog dialog = new SaveFileDialog()
@@ -123,7 +168,7 @@ namespace Pree.ViewModels
 
             if (result ?? false)
             {
-                _audioTarget.OpenFile(dialog.FileName);
+                _audioTarget.OpenFile(dialog.FileName, _recordingSettings);
             }
         }
 
@@ -158,7 +203,7 @@ namespace Pree.ViewModels
 
         private void StartRecording()
         {
-            _audioSource.StartRecording();
+            _audioSource.StartRecording(_recordingSettings);
 
             _now.Value = DateTime.Now;
             _timer.Start();

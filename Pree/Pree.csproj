@@ -68,9 +68,8 @@
     </ApplicationDefinition>
     <Compile Include="Models\AudioSource.cs" />
     <Compile Include="Models\AudioTarget.cs" />
-    <Compile Include="ViewModels\LineViewModel.cs" />
-    <Compile Include="ViewModels\MainViewModel.cs" />
-    <Compile Include="ViewModels\MixerViewModel.cs" />
+    <Compile Include="Models\RecordingSettings.cs" />
+    <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\RecorderViewModel.cs" />
     <Compile Include="ViewModels\ViewModelLocator.cs" />
     <Page Include="MainWindow.xaml">
@@ -87,7 +86,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\MixerSelection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -19,13 +19,16 @@ namespace Pree.Models
             get { return _writer; }
         }
 
-        public void OpenFile(string destination)
+        public void OpenFile(string destination, RecordingSettings recordingSettings)
         {
             if (_writer == null)
             {
                 using (var waveIn = new WaveIn())
                 {
-                    WaveFormat waveFormat = new WaveFormat(44100, 32, 1);
+                    WaveFormat waveFormat = new WaveFormat(
+                        recordingSettings.SampleRate,
+                        recordingSettings.BitsPerSample,
+                        recordingSettings.Channels);
                     var bitePerSample = waveFormat.BitsPerSample;
                     int channels = waveFormat.Channels;
                     int sampleRate = waveFormat.SampleRate;

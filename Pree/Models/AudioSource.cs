@@ -58,10 +58,13 @@ namespace Pree.Models
             _elapsedTime.Value = TimeSpan.Zero;
         }
 
-        public void StartRecording()
+        public void StartRecording(RecordingSettings recordingSettings)
         {
             _waveIn = new WaveIn();
-            _waveIn.WaveFormat = new WaveFormat(44100, 32, 1);
+            _waveIn.WaveFormat = new WaveFormat(
+                recordingSettings.SampleRate,
+                recordingSettings.BitsPerSample,
+                recordingSettings.Channels);
             WaveInProvider waveInProvider = new WaveInProvider(_waveIn);
             _sampleProvider = waveInProvider.ToSampleProvider();
 

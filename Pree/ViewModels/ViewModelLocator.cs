@@ -12,16 +12,17 @@ namespace Pree.ViewModels
     {
         private AudioSource _audioSource = new AudioSource();
         private AudioTarget _audioTarget = new AudioTarget();
-        private MixerSelection _mixerSelection = new MixerSelection();
-
-        public object Main
-        {
-            get { return ViewModel(() => new MainViewModel(_mixerSelection)); }
-        }
+        private RecordingSettings _recordingSettings = new RecordingSettings();
 
         public object Recorder
         {
-            get { return ViewModel(() => new RecorderViewModel(_audioSource, _audioTarget)); }
+            get
+            {
+                return ViewModel(() => new RecorderViewModel(
+                    _audioSource,
+                    _audioTarget,
+                    _recordingSettings));
+            }
         }
     }
 }
