@@ -1,12 +1,12 @@
 ﻿using Microsoft.Win32;
-using Pree.Models;
-using System.Windows.Input;
-using UpdateControls.XAML;
-using System;
-using UpdateControls.Fields;
-using System.Windows.Threading;
-using System.Collections.Generic;
 using NAudio.Wave;
+using Pree.Models;
+using System;
+using System.Collections.Generic;
+using System.Windows.Input;
+using System.Windows.Threading;
+using UpdateControls.Fields;
+using UpdateControls.XAML;
 
 namespace Pree.ViewModels
 {
@@ -14,6 +14,7 @@ namespace Pree.ViewModels
     {
         private readonly AudioSource _audioSource;
         private readonly AudioTarget _audioTarget;
+        private readonly AudioFilter _audioFilter;
         private readonly RecordingSettings _recordingSettings;
 
         private Independent<DateTime> _now = new Independent<DateTime>(DateTime.Now);
@@ -22,11 +23,13 @@ namespace Pree.ViewModels
         public RecorderViewModel(
             AudioSource audioSource,
             AudioTarget audioTarget,
+            AudioFilter audioFilter,
             RecordingSettings recordingSettings)
         {
-            _recordingSettings = recordingSettings;
             _audioSource = audioSource;
             _audioTarget = audioTarget;
+            _audioFilter = audioFilter;
+            _recordingSettings = recordingSettings;
 
             _timer = new DispatcherTimer()
             {
@@ -185,7 +188,11 @@ namespace Pree.ViewModels
         {
             _audioSource.StopRecording();
 
-            _audioSource.WriteClipTo(_audioTarget.Stream);
+            long bytesAvailable = _audioSource.BytesAvailable;
+            using (var filterStream = _audioFilter.OpenStream(_audioTarget.Stream, bytesAvailable))
+            {
+                _audioSource.WriteClipTo(filterStream);
+            }
 
             _audioSource.CloseClip();
 

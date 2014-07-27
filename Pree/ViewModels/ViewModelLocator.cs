@@ -12,7 +12,13 @@ namespace Pree.ViewModels
     {
         private AudioSource _audioSource = new AudioSource();
         private AudioTarget _audioTarget = new AudioTarget();
+        private AudioFilter _audioFilter;
         private RecordingSettings _recordingSettings = new RecordingSettings();
+
+        public ViewModelLocator()
+        {
+            _audioFilter = new AudioFilter(_recordingSettings);
+        }
 
         public object Recorder
         {
@@ -21,6 +27,7 @@ namespace Pree.ViewModels
                 return ViewModel(() => new RecorderViewModel(
                     _audioSource,
                     _audioTarget,
+                    _audioFilter,
                     _recordingSettings));
             }
         }

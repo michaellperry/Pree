@@ -66,9 +66,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Models\AudioFilter.cs" />
     <Compile Include="Models\AudioSource.cs" />
     <Compile Include="Models\AudioTarget.cs" />
     <Compile Include="Models\RecordingSettings.cs" />
+    <Compile Include="Streams\TruncatingFilter.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\RecorderViewModel.cs" />
     <Compile Include="ViewModels\ViewModelLocator.cs" />

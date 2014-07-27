@@ -93,6 +93,11 @@ namespace Pree.Models
             Amplitude = 0.0f;
         }
 
+        public long BytesAvailable
+        {
+            get { return _clip.Length; }
+        }
+
         public void WriteClipTo(Stream writer)
         {
             _clip.WriteTo(writer);
