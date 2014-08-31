@@ -144,7 +144,7 @@ namespace Pree.ViewModels
 
         public string ElapsedTime
         {
-            get { return String.Format(@"{0:hh\:mm\:ss}", _audioSource.GetElapsedTime(_now.Value)); }
+            get { return String.Format(@"{0:hh\:mm\:ss}", _audioSource.ElapsedTime); }
         }
 
         public void Closing()

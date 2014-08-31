@@ -11,7 +11,7 @@ namespace Pree.Models
         private Independent<bool> _recording = new Independent<bool>();
         private Independent<float> _amplitude = new Independent<float>();
         private Independent<TimeSpan> _elapsedTime = new Independent<TimeSpan>();
-        private Independent<DateTime> _recordingStarted = new Independent<DateTime>();
+        private Independent<TimeSpan> _recordingTime = new Independent<TimeSpan>(TimeSpan.Zero);
 
         private IWaveIn _waveIn;
         private ISampleProvider _sampleProvider;
@@ -41,16 +41,9 @@ namespace Pree.Models
             }
         }
 
-        public TimeSpan GetElapsedTime(DateTime now)
+        public TimeSpan ElapsedTime
         {
-            if (_recording.Value)
-            {
-                return _elapsedTime.Value + (now - _recordingStarted.Value);
-            }
-            else
-            {
-                return _elapsedTime.Value;
-            }
+            get { return _elapsedTime.Value + _recordingTime.Value; }
         }
 
         public void Reset()
@@ -74,7 +67,6 @@ namespace Pree.Models
             _waveIn.StartRecording();
 
             _recording.Value = true;
-            _recordingStarted.Value = DateTime.Now;
         }
 
         public void StopRecording()
@@ -101,12 +93,13 @@ namespace Pree.Models
         public void WriteClipTo(Stream writer)
         {
             _clip.WriteTo(writer);
-            _elapsedTime.Value += DateTime.Now - _recordingStarted.Value;
+            _elapsedTime.Value += _recordingTime.Value;
         }
 
         public void CloseClip()
         {
             _clip.Close();
+            _recordingTime.Value = TimeSpan.Zero;
         }
 
         private void DataAvailable(object sender, WaveInEventArgs e)
@@ -128,6 +121,9 @@ namespace Pree.Models
 
             if (actualSampleCount == 0)
                 return;
+
+            _recordingTime.Value += TimeSpan.FromSeconds(
+                (double)actualSampleCount / (double)_waveIn.WaveFormat.SampleRate);
 
             float amplitude = _samples
                 .Take(actualSampleCount)
