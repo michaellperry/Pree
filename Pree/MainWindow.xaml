@@ -62,7 +62,7 @@
         <Button Content="Record" Command="{Binding Record}" Grid.Row="2" Grid.RowSpan="2" Margin="6"/>
         <Button Content="Keep" Grid.Row="2" Command="{Binding Keep}" Grid.Column="1" Margin="6"/>
         <Button Grid.Row="3" Content="Discard" Command="{Binding Discard}" Grid.Column="1" Margin="6"/>
-        <TextBlock Grid.Row="4" Text="{Binding Amplitude}" Margin="6"/>
         <TextBlock Text="{Binding ElapsedTime}" FontSize="42" Grid.Column="1" Margin="6" Grid.Row="4" />
+        <ProgressBar Grid.Row="4" Margin="6" VerticalAlignment="Top" Height="10" Maximum="1" Value="{Binding Amplitude, Mode=OneWay}"/>
     </Grid>
 </Window>
