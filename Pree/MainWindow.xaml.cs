@@ -16,7 +16,7 @@ namespace Pree
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            var viewModel = ForView.Unwrap<RecorderViewModel>(DataContext);
+            var viewModel = ForView.Unwrap<MainViewModel>(DataContext);
 
             if (viewModel != null)
             {

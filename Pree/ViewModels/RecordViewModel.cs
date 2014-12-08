@@ -1,84 +1,30 @@
-﻿using Microsoft.Win32;
-using NAudio.Wave;
-using Pree.Models;
+﻿using Pree.Models;
 using System;
-using System.Collections.Generic;
 using System.Windows.Input;
-using System.Windows.Threading;
-using UpdateControls.Fields;
 using UpdateControls.XAML;
 
 namespace Pree.ViewModels
 {
-    class RecorderViewModel
+    class RecordViewModel : IContentViewModel
     {
         private readonly AudioSource _audioSource;
         private readonly AudioTarget _audioTarget;
         private readonly AudioFilter _audioFilter;
         private readonly RecordingSettings _recordingSettings;
+        private readonly Timer _timer;
 
-        private Independent<DateTime> _now = new Independent<DateTime>(DateTime.Now);
-        private DispatcherTimer _timer;
-        
-        public RecorderViewModel(
+        public RecordViewModel(
             AudioSource audioSource,
             AudioTarget audioTarget,
             AudioFilter audioFilter,
-            RecordingSettings recordingSettings)
+            RecordingSettings recordingSettings,
+            Timer timer)
         {
             _audioSource = audioSource;
             _audioTarget = audioTarget;
             _audioFilter = audioFilter;
             _recordingSettings = recordingSettings;
-
-            _timer = new DispatcherTimer()
-            {
-                Interval = TimeSpan.FromSeconds(1.0)
-            };
-            _timer.Tick += TimerTick;
-        }
-
-        public IEnumerable<DeviceViewModel> Devices
-        {
-            get
-            {
-                for (int deviceIndex = 0; deviceIndex < WaveIn.DeviceCount; deviceIndex++)
-                {
-                    yield return GetDeviceViewModel(deviceIndex);
-                }
-            }
-        }
-
-        public DeviceViewModel SelectedDevice
-        {
-            get { return GetDeviceViewModel(_recordingSettings.DeviceIndex); }
-            set
-            {
-                _recordingSettings.DeviceIndex = value.DeviceIndex;
-                _recordingSettings.Channels = value.Channels;
-            }
-        }
-
-        public int BitsPerSample
-        {
-            get { return _recordingSettings.BitsPerSample; }
-            set { _recordingSettings.BitsPerSample = value; }
-        }
-
-        public int SampleRate
-        {
-            get { return _recordingSettings.SampleRate; }
-            set { _recordingSettings.SampleRate = value; }
-        }
-
-        public ICommand Start
-        {
-            get
-            {
-                return MakeCommand
-                    .When(() => !_audioTarget.IsOpen)
-                    .Do(() => StartSession());
-            }
+            _timer = timer;
         }
 
         public ICommand Stop
@@ -147,34 +93,6 @@ namespace Pree.ViewModels
             get { return String.Format(@"{0:hh\:mm\:ss}", _audioSource.ElapsedTime); }
         }
 
-        public void Closing()
-        {
-            StopSession();
-
-            _timer.Tick -= TimerTick;
-        }
-
-        private static DeviceViewModel GetDeviceViewModel(int deviceIndex)
-        {
-            return new DeviceViewModel(deviceIndex, WaveIn.GetCapabilities(deviceIndex));
-        }
-
-        private void StartSession()
-        {
-            SaveFileDialog dialog = new SaveFileDialog()
-            {
-                OverwritePrompt = true,
-                DefaultExt = "wav",
-                Filter = "Wave files (*.wav)|*.wav|All files (*.*)|*.*"
-            };
-            bool? result = dialog.ShowDialog();
-
-            if (result ?? false)
-            {
-                _audioTarget.OpenFile(dialog.FileName, _recordingSettings);
-            }
-        }
-
         private void StopSession()
         {
             if (_audioSource.Recording)
@@ -212,13 +130,7 @@ namespace Pree.ViewModels
         {
             _audioSource.StartRecording(_recordingSettings);
 
-            _now.Value = DateTime.Now;
             _timer.Start();
-        }
-
-        private void TimerTick(object sender, EventArgs e)
-        {
-            _now.Value = DateTime.Now;
         }
     }
 }

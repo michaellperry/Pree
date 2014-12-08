@@ -14,6 +14,7 @@
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <ExpressionBlendVersion>12.0.51020.0</ExpressionBlendVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -66,14 +67,30 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Assets\Placeholder.cs" />
+    <Compile Include="Converters\ViewSelector.cs" />
     <Compile Include="Models\AudioFilter.cs" />
     <Compile Include="Models\AudioSource.cs" />
     <Compile Include="Models\AudioTarget.cs" />
     <Compile Include="Models\RecordingSettings.cs" />
+    <Compile Include="Models\Timer.cs" />
     <Compile Include="Streams\TruncatingFilter.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
-    <Compile Include="ViewModels\RecorderViewModel.cs" />
+    <Compile Include="ViewModels\IContentViewModel.cs" />
+    <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\RecordViewModel.cs" />
+    <Compile Include="ViewModels\StartViewModel.cs" />
     <Compile Include="ViewModels\ViewModelLocator.cs" />
+    <Compile Include="Views\RecordView.xaml.cs">
+      <DependentUpon>RecordView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\StartView.xaml.cs">
+      <DependentUpon>StartView.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Assets\Icons.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -86,6 +103,14 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\RecordView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\StartView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

@@ -14,21 +14,23 @@ namespace Pree.ViewModels
         private AudioTarget _audioTarget = new AudioTarget();
         private AudioFilter _audioFilter;
         private RecordingSettings _recordingSettings = new RecordingSettings();
+        private Timer _timer = new Timer();
 
         public ViewModelLocator()
         {
             _audioFilter = new AudioFilter(_recordingSettings);
         }
 
-        public object Recorder
+        public object Main
         {
             get
             {
-                return ViewModel(() => new RecorderViewModel(
+                return ViewModel(() => new MainViewModel(
                     _audioSource,
                     _audioTarget,
                     _audioFilter,
-                    _recordingSettings));
+                    _recordingSettings,
+                    _timer));
             }
         }
     }
