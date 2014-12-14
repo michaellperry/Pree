@@ -1,5 +1,6 @@
 ﻿using Pree.Models;
 using System;
+using System.IO;
 using System.Windows.Input;
 using UpdateControls.XAML;
 
@@ -8,32 +9,22 @@ namespace Pree.ViewModels
     class RecordViewModel : IContentViewModel
     {
         private readonly AudioSource _audioSource;
-        private readonly AudioTarget _audioTarget;
-        private readonly AudioFilter _audioFilter;
-        private readonly RecordingSettings _recordingSettings;
-        private readonly Timer _timer;
-
+        private readonly RecordingSession _recordingSession;
+        
         public RecordViewModel(
             AudioSource audioSource,
-            AudioTarget audioTarget,
-            AudioFilter audioFilter,
-            RecordingSettings recordingSettings,
-            Timer timer)
+            RecordingSession recordingSession)
         {
             _audioSource = audioSource;
-            _audioTarget = audioTarget;
-            _audioFilter = audioFilter;
-            _recordingSettings = recordingSettings;
-            _timer = timer;
+            _recordingSession = recordingSession;
         }
 
-        public ICommand Stop
+        public ICommand Done
         {
             get
             {
                 return MakeCommand
-                    .When(() => _audioTarget.IsOpen)
-                    .Do(() => StopSession());
+                    .Do(() => _recordingSession.EndSession());
             }
         }
 
@@ -42,8 +33,18 @@ namespace Pree.ViewModels
             get
             {
                 return MakeCommand
-                    .When(() => _audioTarget.IsOpen && !_audioSource.Recording)
-                    .Do(() => StartRecording());
+                    .When(() => !_recordingSession.Recording)
+                    .Do(() => _recordingSession.StartRecording());
+            }
+        }
+
+        public ICommand Stop
+        {
+            get
+            {
+                return MakeCommand
+                    .When(() => _recordingSession.Recording)
+                    .Do(() => _recordingSession.StopRecording());
             }
         }
 
@@ -52,24 +53,8 @@ namespace Pree.ViewModels
             get
             {
                 return MakeCommand
-                    .When(() => _audioTarget.IsOpen && _audioSource.Recording)
-                    .Do(() => KeepClip());
-            }
-        }
-
-        public ICommand RecordOrKeep
-        {
-            get
-            {
-                return MakeCommand
-                    .When(() => _audioTarget.IsOpen)
-                    .Do(() =>
-                    {
-                        if (!_audioSource.Recording)
-                            StartRecording();
-                        else
-                            KeepClip();
-                    });
+                    .When(() => !_recordingSession.Recording && !_recordingSession.ShouldKeep)
+                    .Do(() => _recordingSession.ShouldKeep = true);
             }
         }
 
@@ -78,8 +63,8 @@ namespace Pree.ViewModels
             get
             {
                 return MakeCommand
-                    .When(() => _audioTarget.IsOpen && _audioSource.Recording)
-                    .Do(() => DiscardClip());
+                    .When(() => !_recordingSession.Recording && _recordingSession.ShouldKeep)
+                    .Do(() => _recordingSession.ShouldKeep = false);
             }
         }
 
@@ -90,47 +75,7 @@ namespace Pree.ViewModels
 
         public string ElapsedTime
         {
-            get { return String.Format(@"{0:hh\:mm\:ss}", _audioSource.ElapsedTime); }
-        }
-
-        private void StopSession()
-        {
-            if (_audioSource.Recording)
-                _audioSource.StopRecording();
-            _audioSource.Reset();
-
-            _audioTarget.CloseFile();
-        }
-
-        private void KeepClip()
-        {
-            _audioSource.StopRecording();
-
-            long bytesAvailable = _audioSource.BytesAvailable;
-            using (var filterStream = _audioFilter.OpenStream(_audioTarget.Stream, bytesAvailable))
-            {
-                _audioSource.WriteClipTo(filterStream);
-            }
-
-            _audioSource.CloseClip();
-
-            _timer.Stop();
-        }
-
-        private void DiscardClip()
-        {
-            _audioSource.StopRecording();
-
-            _audioSource.CloseClip();
-
-            _timer.Stop();
-        }
-
-        private void StartRecording()
-        {
-            _audioSource.StartRecording(_recordingSettings);
-
-            _timer.Start();
+            get { return String.Format(@"{0:hh\:mm\:ss}", _recordingSession.ElapsedTime); }
         }
     }
 }

@@ -5,7 +5,7 @@
         xmlns:v="clr-namespace:Pree.Views"
         xmlns:vm="clr-namespace:Pree.ViewModels"
         x:Class="Pree.MainWindow"
-        Title="Pree" Height="437" Width="525"
+        Title="Pree" Height="640" Width="680"
         DataContext="{Binding Main, Source={StaticResource Locator}}"
         Closing="Window_Closing">
     <Window.Resources>
@@ -17,8 +17,10 @@
         </DataTemplate>
     </Window.Resources>
     <Window.InputBindings>
-        <KeyBinding Command="{Binding RecordOrKeep}" Key="PageDown"/>
-        <KeyBinding Command="{Binding Discard}" Key="PageUp"/>
+        <KeyBinding Command="{Binding Record}" Key="PageDown"/>
+        <KeyBinding Command="{Binding StopOrDiscard}" Key="PageUp"/>
     </Window.InputBindings>
-    <ContentPresenter Content="{Binding Content}" ContentTemplateSelector="{StaticResource ViewSelector}"/>
+    <Viewbox>
+        <ContentPresenter Content="{Binding Content}" ContentTemplateSelector="{StaticResource ViewSelector}"/>
+    </Viewbox>
 </Window>

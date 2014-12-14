@@ -9,21 +9,15 @@ namespace Pree.ViewModels
 {
     class StartViewModel : IContentViewModel
     {
-        private readonly AudioSource _audioSource;
-        private readonly AudioTarget _audioTarget;
-        private readonly AudioFilter _audioFilter;
         private readonly RecordingSettings _recordingSettings;
-
+        private readonly RecordingSession _recordingSession;
+        
         public StartViewModel(
-            AudioSource audioSource,
-            AudioTarget audioTarget,
-            AudioFilter audioFilter,
-            RecordingSettings recordingSettings)
+            RecordingSettings recordingSettings,
+            RecordingSession recordingSession)
         {
-            _audioSource = audioSource;
-            _audioTarget = audioTarget;
-            _audioFilter = audioFilter;
             _recordingSettings = recordingSettings;
+            _recordingSession = recordingSession;
         }
 
         public IEnumerable<DeviceViewModel> Devices
@@ -64,7 +58,7 @@ namespace Pree.ViewModels
             get
             {
                 return MakeCommand
-                    .When(() => !_audioTarget.IsOpen)
+                    .When(() => !_recordingSession.IsActive)
                     .Do(() => StartSession());
             }
         }
@@ -86,17 +80,8 @@ namespace Pree.ViewModels
 
             if (result ?? false)
             {
-                _audioTarget.OpenFile(dialog.FileName, _recordingSettings);
+                _recordingSession.BeginSession(dialog.FileName);
             }
-        }
-
-        private void StopSession()
-        {
-            if (_audioSource.Recording)
-                _audioSource.StopRecording();
-            _audioSource.Reset();
-
-            _audioTarget.CloseFile();
         }
     }
 }

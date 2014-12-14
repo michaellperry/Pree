@@ -1,4 +1,5 @@
 ﻿using NAudio.Wave;
+using System.Diagnostics.Contracts;
 using System.IO;
 using UpdateControls.Fields;
 
@@ -21,6 +22,9 @@ namespace Pree.Models
 
         public void OpenFile(string destination, RecordingSettings recordingSettings)
         {
+            Contract.Requires(!IsOpen);
+            Contract.Ensures(IsOpen);
+
             if (_writer == null)
             {
                 using (var waveIn = new WaveIn())
@@ -42,6 +46,9 @@ namespace Pree.Models
 
         public void CloseFile()
         {
+            Contract.Requires(IsOpen);
+            Contract.Ensures(!IsOpen);
+
             _isOpen.Value = false;
 
             if (_writer != null)

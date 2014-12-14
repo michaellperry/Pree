@@ -15,10 +15,18 @@ namespace Pree.ViewModels
         private AudioFilter _audioFilter;
         private RecordingSettings _recordingSettings = new RecordingSettings();
         private Timer _timer = new Timer();
+        private RecordingSession _recordingSession;
 
         public ViewModelLocator()
         {
             _audioFilter = new AudioFilter(_recordingSettings);
+
+            _recordingSession = new RecordingSession(
+                _audioSource,
+                _audioTarget,
+                _audioFilter,
+                _recordingSettings,
+                _timer);
         }
 
         public object Main
@@ -27,10 +35,10 @@ namespace Pree.ViewModels
             {
                 return ViewModel(() => new MainViewModel(
                     _audioSource,
-                    _audioTarget,
                     _audioFilter,
                     _recordingSettings,
-                    _timer));
+                    _timer,
+                    _recordingSession));
             }
         }
     }

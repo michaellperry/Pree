@@ -5,29 +5,29 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Pree.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="428.667" d:DesignWidth="708.667">
-    <Grid>
-        <StackPanel Margin="0,34.868,0,0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
+             d:DesignHeight="346" d:DesignWidth="328">
+    <StackPanel Margin="6">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
             <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <Button Content="{DynamicResource Record}" Command="{Binding Record}" HorizontalAlignment="Left" Width="100" Height="100" VerticalAlignment="Top" Margin="6"/>
                 <TextBlock x:Name="textBlock" HorizontalAlignment="Center" Margin="6,0,6,6" TextWrapping="Wrap" Text="Record" VerticalAlignment="Top"/>
             </StackPanel>
             <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top">
-                <Button Content="{DynamicResource Stop}" Command="{Binding Record}" HorizontalAlignment="Left" Width="100" Height="100" VerticalAlignment="Top" Margin="6"/>
+                <Button Content="{DynamicResource Stop}" Command="{Binding Stop}" HorizontalAlignment="Left" Width="100" Height="100" VerticalAlignment="Top" Margin="6"/>
                 <TextBlock x:Name="textBlock_Copy" HorizontalAlignment="Center" Margin="6,0,6,6" TextWrapping="Wrap" Text="Stop" VerticalAlignment="Top"/>
 
             </StackPanel>
             <ProgressBar Maximum="1" Value="{Binding Amplitude, Mode=OneWay}" HorizontalAlignment="Left" Width="24" Height="100" VerticalAlignment="Top" Orientation="Vertical" Margin="6"/>
         </StackPanel>
-        <StackPanel Margin="0,168.408,0,0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
             <Button Content="Keep" Command="{Binding Keep}" HorizontalAlignment="Left" Width="100" Height="100" VerticalAlignment="Top" Margin="6"/>
             <Button Content="Discard" Command="{Binding Discard}" HorizontalAlignment="Left" Width="100" Height="100" VerticalAlignment="Top" Margin="6"/>
         </StackPanel>
-        <StackPanel Margin="0,295.535,0,0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
             <TextBlock Text="{Binding ElapsedTime}" FontSize="42" Margin="6" Width="160" HorizontalAlignment="Left" VerticalAlignment="Top" />
-            <Button Content="Done" Command="{Binding Stop}" HorizontalAlignment="Left" Width="100" Margin="6"/>
+            <Button Content="Done" Command="{Binding Done}" HorizontalAlignment="Left" Width="100" Margin="6"/>
 
         </StackPanel>
 
-    </Grid>
+    </StackPanel>
 </UserControl>

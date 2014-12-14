@@ -6,8 +6,8 @@
              xmlns:local="clr-namespace:Pree.Views"
              xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="Pree.Views.StartView"
              mc:Ignorable="d" 
-             d:DesignHeight="383" d:DesignWidth="525">
-    <Grid>
+             d:DesignHeight="381.01" d:DesignWidth="525">
+    <Grid Margin="6">
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="240">
             <TextBlock x:Name="textBlock" TextWrapping="Wrap" Text="Input:" Margin="6,6,6,0"/>
             <ListBox Margin="6" ItemsSource="{Binding Devices}" SelectedItem="{Binding SelectedDevice}" Height="84.201">
