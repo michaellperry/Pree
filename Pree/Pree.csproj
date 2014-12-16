@@ -159,6 +159,8 @@
     </ApplicationDefinition>
     <Compile Include="Assets\Placeholder.cs" />
     <Compile Include="Converters\ViewSelector.cs" />
+    <Compile Include="CSP\AsyncSemaphore.cs" />
+    <Compile Include="CSP\Process.cs" />
     <Compile Include="Models\AudioFilter.cs" />
     <Compile Include="Models\AudioSource.cs" />
     <Compile Include="Models\AudioTarget.cs" />
