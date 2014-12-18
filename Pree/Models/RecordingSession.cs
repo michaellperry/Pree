@@ -74,7 +74,6 @@ namespace Pree.Models
         public void EndSession()
         {
             Contract.Requires(IsActive);
-            Contract.Ensures(!IsActive);
 
             if (_audioSource.Recording)
                 StopRecording();

@@ -33,14 +33,14 @@ namespace Pree.Models
             _isOpen.Value = true;
         }
 
-        public void CloseFile()
+        public async void CloseFile()
         {
             Contract.Requires(IsOpen);
-            Contract.Ensures(!IsOpen);
-
-            _isOpen.Value = false;
 
             _audioFileService.CloseFile();
+            await _audioFileService.JoinAsync();
+
+            _isOpen.Value = false;
         }
 
         public void WriteClip(Clip clip)

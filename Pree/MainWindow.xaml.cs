@@ -20,7 +20,10 @@ namespace Pree
 
             if (viewModel != null)
             {
-                viewModel.Closing();
+                if (viewModel.CanClose)
+                    viewModel.Closing();
+                else
+                    e.Cancel = true;
             }
         }
     }

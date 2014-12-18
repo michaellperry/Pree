@@ -1,6 +1,7 @@
 ﻿using Pree.Models;
 using System.Windows.Input;
 using UpdateControls.XAML;
+using System;
 
 namespace Pree.ViewModels
 {
@@ -72,17 +73,17 @@ namespace Pree.ViewModels
             }
         }
 
-        public void Closing()
+        public bool CanClose
         {
-            EndSession();
-
-            _timer.Dispose();
+            get
+            {
+                return !_recordingSession.IsActive;
+            }
         }
 
-        private void EndSession()
+        public void Closing()
         {
-            if (_recordingSession.IsActive)
-                _recordingSession.EndSession();
+            _timer.Dispose();
         }
     }
 }
