@@ -12,7 +12,6 @@ namespace Pree.Models
     {
         private readonly AudioSource _audioSource;
         private readonly AudioTarget _audioTarget;
-        private readonly AudioFilter _audioFilter;
         private readonly RecordingSettings _recordingSettings;
         private readonly Timer _timer;
 
@@ -23,13 +22,11 @@ namespace Pree.Models
         public RecordingSession(
             AudioSource audioSource,
             AudioTarget audioTarget,
-            AudioFilter audioFilter,
             RecordingSettings recordingSettings,
             Timer timer)
         {
             _audioSource = audioSource;
             _audioTarget = audioTarget;
-            _audioFilter = audioFilter;
             _recordingSettings = recordingSettings;
             _timer = timer;
         }
@@ -129,11 +126,7 @@ namespace Pree.Models
 
             _elapsedTime.Value += clip.Duration;
 
-            long bytesAvailable = clip.Content.Length;
-            using (var filterStream = _audioFilter.OpenStream(_audioTarget.Stream, bytesAvailable))
-            {
-                clip.Content.WriteTo(filterStream);
-            }
+            _audioTarget.WriteClip(clip);
         }
     }
 }

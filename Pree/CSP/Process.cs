@@ -23,6 +23,16 @@ namespace Pree.CSP
             }
         }
 
+        public Task JoinAsync()
+        {
+            TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>();
+            Enqueue(async delegate
+            {
+                completion.SetResult(true);
+            });
+            return completion.Task;
+        }
+
         protected async void Enqueue(Func<Task> request)
         {
             await _lock.WaitAsync();
