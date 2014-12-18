@@ -14,7 +14,7 @@ namespace Pree.CSP
         private readonly Queue<TaskCompletionSource<bool>> m_waiters = new Queue<TaskCompletionSource<bool>>();
         private int m_currentCount;
 
-        public AsyncSemaphore(int initialCount = 0)
+        public AsyncSemaphore(int initialCount = 1)
         {
             if (initialCount < 0) throw new ArgumentOutOfRangeException("initialCount");
             m_currentCount = initialCount;

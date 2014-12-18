@@ -41,7 +41,6 @@ namespace Pree.Models
             _isOpen.Value = false;
 
             _audioFileService.CloseFile();
-            _audioFileService.JoinAsync().Wait();
         }
 
         public void WriteClip(Clip clip)

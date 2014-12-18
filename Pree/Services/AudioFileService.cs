@@ -55,15 +55,12 @@ namespace Pree.Services
         {
             if (_writer == null)
             {
-                using (var waveIn = new WaveIn())
-                {
-                    WaveFormat waveFormat = new WaveFormat(
-                        sampleRate,
-                        bitsPerSample,
-                        channels);
+                WaveFormat waveFormat = new WaveFormat(
+                    sampleRate,
+                    bitsPerSample,
+                    channels);
 
-                    _writer = new WaveFileWriter(destination, waveFormat);
-                }
+                _writer = new WaveFileWriter(destination, waveFormat);
             }
         }
 
@@ -83,6 +80,7 @@ namespace Pree.Services
             {
                 content.WriteTo(filterStream);
             }
+            content.Close();
         }
     }
 }

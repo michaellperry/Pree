@@ -116,7 +116,8 @@ namespace Pree.Models
             {
                 if (ShouldKeep)
                     KeepClip(clip);
-                clip.Content.Close();
+                else
+                    clip.Content.Close();
             }
         }
 
