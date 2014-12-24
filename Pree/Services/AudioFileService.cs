@@ -14,6 +14,9 @@ namespace Pree.Services
     {
         private readonly AudioFilter _audioFilter;
 
+        private int _sampleRate;
+        private int _bitsPerSample;
+        private int _channels;
         private WaveFileWriter _writer = null;
 
         public AudioFileService(AudioFilter audioFilter)
@@ -23,13 +26,13 @@ namespace Pree.Services
 
         public void OpenFile(string destination, RecordingSettings recordingSettings)
         {
-            int sampleRate = recordingSettings.SampleRate;
-            int bitsPerSample = recordingSettings.BitsPerSample;
-            int channels = recordingSettings.Channels;
+            _sampleRate = recordingSettings.SampleRate;
+            _bitsPerSample = recordingSettings.BitsPerSample;
+            _channels = recordingSettings.Channels;
 
             Enqueue(delegate
             {
-                OnOpenFile(destination, sampleRate, bitsPerSample, channels);
+                OnOpenFile(destination, _sampleRate, _bitsPerSample, _channels);
             });
         }
 
@@ -48,6 +51,14 @@ namespace Pree.Services
             Enqueue(delegate
             {
                 OnWriteClip(content);
+            });
+        }
+
+        public void WriteTone(TimeSpan duration)
+        {
+            Enqueue(delegate
+            {
+                OnWriteTone(duration);
             });
         }
 
@@ -81,6 +92,22 @@ namespace Pree.Services
                 content.WriteTo(filterStream);
             }
             content.Close();
+        }
+
+        private void OnWriteTone(TimeSpan duration)
+        {
+            long sampleCount = (long)(duration.TotalSeconds * _sampleRate);
+            double phaseAngle = 0.0;
+            for (long index = 0; index < sampleCount; index++)
+            {
+                float sample = (float)(8192.0 * Math.Sin(phaseAngle));
+                _writer.WriteSample(sample);
+                phaseAngle +=
+                    2 * Math.PI * 440.0 / _sampleRate;
+
+                if (phaseAngle > 2 * Math.PI)
+                    phaseAngle -= 2 * Math.PI;
+            }
         }
     }
 }

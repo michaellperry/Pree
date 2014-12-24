@@ -17,13 +17,15 @@ namespace Pree.ViewModels
         private RecordingSettings _recordingSettings = new RecordingSettings();
         private Timer _timer = new Timer();
         private AudioFileService _audioFileService;
+        private AudioFileService _timelineFileService;
         private RecordingSession _recordingSession;
 
         public ViewModelLocator()
         {
             _audioFilter = new AudioFilter(_recordingSettings);
             _audioFileService = new AudioFileService(_audioFilter);
-            _audioTarget = new AudioTarget(_audioFileService);
+            _timelineFileService = new AudioFileService(_audioFilter);
+            _audioTarget = new AudioTarget(_audioFileService, _timelineFileService);
 
             _recordingSession = new RecordingSession(
                 _audioSource,

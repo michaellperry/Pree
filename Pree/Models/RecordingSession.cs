@@ -18,7 +18,7 @@ namespace Pree.Models
         private Independent<bool> _shouldKeep = new Independent<bool>(true);
         private Independent<TimeSpan> _elapsedTime = new Independent<TimeSpan>(TimeSpan.Zero);
         private Independent<Clip> _clip = new Independent<Clip>();
-
+        
         public RecordingSession(
             AudioSource audioSource,
             AudioTarget audioTarget,
@@ -68,6 +68,7 @@ namespace Pree.Models
             Contract.Requires(!IsActive);
             Contract.Ensures(IsActive);
 
+            _audioSource.BeginSession();
             _audioTarget.OpenFile(fileName, _recordingSettings);
         }
 

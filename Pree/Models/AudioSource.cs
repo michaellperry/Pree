@@ -9,6 +9,9 @@ namespace Pree.Models
 {
     class AudioSource
     {
+        private DateTime _sessionStart;
+        private TimeSpan _clipStart;
+
         private Independent<bool> _recording = new Independent<bool>();
         private Independent<float> _amplitude = new Independent<float>();
         private Independent<TimeSpan> _recordingTime = new Independent<TimeSpan>(TimeSpan.Zero);
@@ -17,6 +20,11 @@ namespace Pree.Models
         private ISampleProvider _sampleProvider;
         private MemoryStream _content;
         private float[] _samples;
+
+        public void BeginSession()
+        {
+            _sessionStart = DateTime.Now;
+        }
 
         public bool Recording
         {
@@ -64,6 +72,8 @@ namespace Pree.Models
             _content = new MemoryStream();
             _waveIn.StartRecording();
 
+            _clipStart = DateTime.Now - _sessionStart;
+
             _recording.Value = true;
         }
 
@@ -85,7 +95,7 @@ namespace Pree.Models
 
             Amplitude = 0.0f;
 
-            Clip clip = new Clip(_content, _recordingTime.Value);
+            Clip clip = new Clip(_content, _clipStart, _recordingTime.Value);
             _content = null;
             _recordingTime.Value = TimeSpan.Zero;
             return clip;

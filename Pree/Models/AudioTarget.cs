@@ -10,12 +10,15 @@ namespace Pree.Models
     class AudioTarget
     {
         private readonly AudioFileService _audioFileService;
+        private readonly AudioFileService _timelineFileService;
 
+        private TimeSpan _lastClipEnd = TimeSpan.Zero;
         private Independent<bool> _isOpen = new Independent<bool>();
-        
-        public AudioTarget(AudioFileService audioFileService)
+
+        public AudioTarget(AudioFileService audioFileService, AudioFileService audioFileService1)
         {
             _audioFileService = audioFileService;
+            _timelineFileService = audioFileService1;
         }
 
         public bool IsOpen
@@ -28,7 +31,11 @@ namespace Pree.Models
             Contract.Requires(!IsOpen);
             Contract.Ensures(IsOpen);
 
+            var timelineFileName = destination.Substring(0, destination.LastIndexOf('.')) +
+                "_time.wav";
+
             _audioFileService.OpenFile(destination, recordingSettings);
+            _timelineFileService.OpenFile(timelineFileName, recordingSettings);
 
             _isOpen.Value = true;
         }
@@ -38,7 +45,9 @@ namespace Pree.Models
             Contract.Requires(IsOpen);
 
             _audioFileService.CloseFile();
+            _timelineFileService.CloseFile();
             await _audioFileService.JoinAsync();
+            await _timelineFileService.JoinAsync();
 
             _isOpen.Value = false;
         }
@@ -46,6 +55,8 @@ namespace Pree.Models
         public void WriteClip(Clip clip)
         {
             _audioFileService.WriteClip(clip);
+            _timelineFileService.WriteTone(clip.StartTime - _lastClipEnd);
+            _timelineFileService.WriteClip(clip);
         }
     }
 }
