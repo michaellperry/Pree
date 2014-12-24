@@ -55,7 +55,7 @@ namespace Pree.Models
         public void WriteClip(Clip clip)
         {
             _audioFileService.WriteClip(clip);
-            _timelineFileService.WriteTone(clip.StartTime - _lastClipEnd);
+            _timelineFileService.WriteTone(clip.StartTime - _lastClipEnd + TimeSpan.FromSeconds(0.4));
             _timelineFileService.WriteClip(clip);
 
             _lastClipEnd = clip.StartTime + clip.Duration;

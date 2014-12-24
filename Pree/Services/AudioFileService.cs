@@ -96,10 +96,10 @@ namespace Pree.Services
             double phaseAngle = 0.0;
             for (long index = 0; index < sampleCount; index++)
             {
-                float sample = (float)(1.0 * Math.Sin(phaseAngle));
+                float sample = (float)(0.5 * Math.Sin(phaseAngle));
                 _writer.WriteSample(sample);
                 phaseAngle +=
-                    2 * Math.PI * 440.0 / _sampleRate;
+                    2 * Math.PI * 220.0 / _sampleRate;
 
                 if (phaseAngle > 2 * Math.PI)
                     phaseAngle -= 2 * Math.PI;
