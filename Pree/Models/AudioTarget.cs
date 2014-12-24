@@ -15,10 +15,10 @@ namespace Pree.Models
         private TimeSpan _lastClipEnd = TimeSpan.Zero;
         private Independent<bool> _isOpen = new Independent<bool>();
 
-        public AudioTarget(AudioFileService audioFileService, AudioFileService audioFileService1)
+        public AudioTarget(AudioFileService audioFileService, AudioFileService timelineFileService)
         {
             _audioFileService = audioFileService;
-            _timelineFileService = audioFileService1;
+            _timelineFileService = timelineFileService;
         }
 
         public bool IsOpen
@@ -57,6 +57,8 @@ namespace Pree.Models
             _audioFileService.WriteClip(clip);
             _timelineFileService.WriteTone(clip.StartTime - _lastClipEnd);
             _timelineFileService.WriteClip(clip);
+
+            _lastClipEnd = clip.StartTime + clip.Duration;
         }
     }
 }
