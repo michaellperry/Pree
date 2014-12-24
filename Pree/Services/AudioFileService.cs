@@ -66,9 +66,8 @@ namespace Pree.Services
         {
             if (_writer == null)
             {
-                WaveFormat waveFormat = new WaveFormat(
+                WaveFormat waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(
                     sampleRate,
-                    bitsPerSample,
                     channels);
 
                 _writer = new WaveFileWriter(destination, waveFormat);
@@ -91,7 +90,6 @@ namespace Pree.Services
             {
                 content.WriteTo(filterStream);
             }
-            content.Close();
         }
 
         private void OnWriteTone(TimeSpan duration)
@@ -100,7 +98,7 @@ namespace Pree.Services
             double phaseAngle = 0.0;
             for (long index = 0; index < sampleCount; index++)
             {
-                float sample = (float)(8192.0 * Math.Sin(phaseAngle));
+                float sample = (float)(1.0 * Math.Sin(phaseAngle));
                 _writer.WriteSample(sample);
                 phaseAngle +=
                     2 * Math.PI * 440.0 / _sampleRate;

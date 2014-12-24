@@ -60,9 +60,8 @@ namespace Pree.Models
             Contract.Ensures(Recording);
 
             _waveIn = new WaveIn();
-            _waveIn.WaveFormat = new WaveFormat(
+            _waveIn.WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(
                 recordingSettings.SampleRate,
-                recordingSettings.BitsPerSample,
                 recordingSettings.Channels);
             WaveInProvider waveInProvider = new WaveInProvider(_waveIn);
             _sampleProvider = waveInProvider.ToSampleProvider();
