@@ -15,7 +15,6 @@ namespace Pree.Services
         private readonly AudioFilter _audioFilter;
 
         private int _sampleRate;
-        private int _bitsPerSample;
         private int _channels;
         private WaveFileWriter _writer = null;
 
@@ -27,12 +26,11 @@ namespace Pree.Services
         public void OpenFile(string destination, RecordingSettings recordingSettings)
         {
             _sampleRate = recordingSettings.SampleRate;
-            _bitsPerSample = recordingSettings.BitsPerSample;
             _channels = recordingSettings.Channels;
 
             Enqueue(delegate
             {
-                OnOpenFile(destination, _sampleRate, _bitsPerSample, _channels);
+                OnOpenFile(destination, _sampleRate, _channels);
             });
         }
 
@@ -62,7 +60,7 @@ namespace Pree.Services
             });
         }
 
-        private void OnOpenFile(string destination, int sampleRate, int bitsPerSample, int channels)
+        private void OnOpenFile(string destination, int sampleRate, int channels)
         {
             if (_writer == null)
             {

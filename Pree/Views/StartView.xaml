@@ -22,18 +22,6 @@
                     <ColumnDefinition Width="83"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="Bits" Margin="6"/>
-                <ComboBox SelectedValue="{Binding BitsPerSample}" Grid.Column="1" Margin="6">
-                    <System:Int32>16</System:Int32>
-                    <System:Int32>24</System:Int32>
-                    <System:Int32>32</System:Int32>
-                </ComboBox>
-            </Grid>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="83"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
                 <TextBlock Text="Sample Rate" Margin="6"/>
                 <ComboBox SelectedValue="{Binding SampleRate}" Grid.Column="1" Margin="6">
                     <System:Int32>8000</System:Int32>

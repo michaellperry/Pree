@@ -41,12 +41,6 @@ namespace Pree.ViewModels
             }
         }
 
-        public int BitsPerSample
-        {
-            get { return _recordingSettings.BitsPerSample; }
-            set { _recordingSettings.BitsPerSample = value; }
-        }
-
         public int SampleRate
         {
             get { return _recordingSettings.SampleRate; }

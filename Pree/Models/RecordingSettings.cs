@@ -33,12 +33,6 @@ namespace Pree.Models
             set { _channels.Value = value; }
         }
 
-        public int BitsPerSample
-        {
-            get { return _bitsPerSample; }
-            set { _bitsPerSample.Value = value; }
-        }
-
         public int SampleRate
         {
             get { return _sampleRate; }
