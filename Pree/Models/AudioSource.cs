@@ -51,7 +51,13 @@ namespace Pree.Models
 
         public TimeSpan RecordingTime
         {
-            get { return _recordingTime.Value; }
+            get
+            {
+                TimeSpan recordingTime = _recordingTime.Value - TimeSpan.FromSeconds(0.4);
+                return recordingTime < TimeSpan.Zero
+                    ? TimeSpan.Zero
+                    : recordingTime;
+            }
         }
 
         public void StartRecording(RecordingSettings recordingSettings)
@@ -94,7 +100,7 @@ namespace Pree.Models
 
             Amplitude = 0.0f;
 
-            Clip clip = new Clip(_content, _clipStart, _recordingTime.Value);
+            Clip clip = new Clip(_content, _clipStart, RecordingTime);
             _content = null;
             _recordingTime.Value = TimeSpan.Zero;
             return clip;
