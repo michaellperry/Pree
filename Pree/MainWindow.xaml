@@ -19,6 +19,8 @@
     <Window.InputBindings>
         <KeyBinding Command="{Binding Record}" Key="PageDown"/>
         <KeyBinding Command="{Binding StopOrDiscard}" Key="PageUp"/>
+        <KeyBinding Command="{Binding Record}" Gesture="Shift+Ctrl+F10" HotkeyManager.RegisterGlobalHotkey="True" />
+        <KeyBinding Command="{Binding StopOrDiscard}" Gesture="Shift+Ctrl+F11" HotkeyManager.RegisterGlobalHotkey="True" />
     </Window.InputBindings>
     <Viewbox>
         <ContentPresenter Content="{Binding Content}" ContentTemplateSelector="{StaticResource ViewSelector}"/>
