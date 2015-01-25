@@ -12,7 +12,7 @@ namespace Pree.CSP
         private AsyncSemaphore _lock = new AsyncSemaphore();
         private Independent<Exception> _exception = new Independent<Exception>();
 
-        public Independent<Exception> Exception
+        public Exception Exception
         {
             get
             {
