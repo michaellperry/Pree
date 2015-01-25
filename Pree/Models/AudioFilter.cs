@@ -20,7 +20,7 @@ namespace Pree.Models
         public Stream OpenStream(Stream targetStream, long bytesAvailable)
         {
             return new TruncatingFilter(targetStream,
-                4 * _recordingSettings.SampleRate / 5,
+                _recordingSettings.TrimMilliseconds * _recordingSettings.SampleRate / 250,
                 bytesAvailable);
         }
     }

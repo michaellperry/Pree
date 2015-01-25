@@ -11,7 +11,7 @@ namespace Pree.ViewModels
 {
     class ViewModelLocator : ViewModelLocatorBase
     {
-        private AudioSource _audioSource = new AudioSource();
+        private AudioSource _audioSource;
         private AudioTarget _audioTarget;
         private AudioFilter _audioFilter;
         private RecordingSettings _recordingSettings = new RecordingSettings();
@@ -22,6 +22,7 @@ namespace Pree.ViewModels
 
         public ViewModelLocator()
         {
+            _audioSource = new AudioSource(_recordingSettings);
             _audioFilter = new AudioFilter(_recordingSettings);
             _audioFileService = new AudioFileService(_audioFilter);
             _timelineFileService = new AudioFileService(_audioFilter);

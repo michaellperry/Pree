@@ -9,6 +9,8 @@ namespace Pree.Models
 {
     class AudioSource
     {
+        private readonly RecordingSettings _recordingSettings;
+
         private DateTime _sessionStart;
         private TimeSpan _clipStart;
 
@@ -20,6 +22,11 @@ namespace Pree.Models
         private ISampleProvider _sampleProvider;
         private MemoryStream _content;
         private float[] _samples;
+        
+        public AudioSource(RecordingSettings recordingSettings)
+        {
+            _recordingSettings = recordingSettings;
+        }
 
         public void BeginSession()
         {
@@ -53,7 +60,8 @@ namespace Pree.Models
         {
             get
             {
-                TimeSpan recordingTime = _recordingTime.Value - TimeSpan.FromSeconds(0.4);
+                TimeSpan recordingTime = _recordingTime.Value -
+                    TimeSpan.FromMilliseconds(2 * _recordingSettings.TrimMilliseconds);
                 return recordingTime < TimeSpan.Zero
                     ? TimeSpan.Zero
                     : recordingTime;
