@@ -10,7 +10,7 @@
     <Grid Margin="6">
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="240">
             <TextBlock x:Name="textBlock" TextWrapping="Wrap" Text="Input:" Margin="6,6,6,0"/>
-            <ListBox Margin="6" ItemsSource="{Binding Devices}" SelectedItem="{Binding SelectedDevice}" Height="84.201">
+            <ListBox Margin="6" ItemsSource="{Binding Devices}" SelectedItem="{Binding SelectedDevice, Mode = TwoWay}" Height="84.201">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding Name}"/>

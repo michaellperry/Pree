@@ -18,7 +18,7 @@ namespace Pree.Models
         private Independent<float> _amplitude = new Independent<float>();
         private Independent<TimeSpan> _recordingTime = new Independent<TimeSpan>(TimeSpan.Zero);
 
-        private IWaveIn _waveIn;
+        private WaveIn _waveIn;
         private ISampleProvider _sampleProvider;
         private MemoryStream _content;
         private float[] _samples;
@@ -74,6 +74,8 @@ namespace Pree.Models
             Contract.Ensures(Recording);
 
             _waveIn = new WaveIn();
+            _waveIn.DeviceNumber = recordingSettings.DeviceIndex;
+
             _waveIn.WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(
                 recordingSettings.SampleRate,
                 recordingSettings.Channels);
