@@ -137,7 +137,7 @@ namespace Pree.Models
                 return;
 
             _recordingTime.Value += TimeSpan.FromSeconds(
-                (double)actualSampleCount / (double)_waveIn.WaveFormat.SampleRate);
+                (double)actualSampleCount / (double)_waveIn.WaveFormat.SampleRate / _waveIn.WaveFormat.Channels);
 
             float amplitude = _samples
                 .Take(actualSampleCount)

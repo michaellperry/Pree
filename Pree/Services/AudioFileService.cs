@@ -92,14 +92,14 @@ namespace Pree.Services
 
         private void OnWriteTone(TimeSpan duration)
         {
-            long sampleCount = (long)(duration.TotalSeconds * _sampleRate);
+            long sampleCount = (long)(duration.TotalSeconds * _sampleRate) * _channels;
             double phaseAngle = 0.0;
             for (long index = 0; index < sampleCount; index++)
             {
                 float sample = (float)(0.5 * Math.Sin(phaseAngle));
                 _writer.WriteSample(sample);
                 phaseAngle +=
-                    2 * Math.PI * 220.0 / _sampleRate;
+                    2 * Math.PI * 220.0 / _sampleRate / _channels;
 
                 if (phaseAngle > 2 * Math.PI)
                     phaseAngle -= 2 * Math.PI;
