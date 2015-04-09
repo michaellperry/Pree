@@ -37,7 +37,7 @@ namespace Pree.ViewModels
             set
             {
                 _recordingSettings.DeviceIndex = value.DeviceIndex;
-                _recordingSettings.Channels = value.Channels;
+                _recordingSettings.Channels = 1;
             }
         }
 
