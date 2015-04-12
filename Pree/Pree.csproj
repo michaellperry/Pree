@@ -171,6 +171,7 @@
     <Compile Include="Models\AudioSource.cs" />
     <Compile Include="Models\AudioTarget.cs" />
     <Compile Include="Models\Clip.cs" />
+    <Compile Include="Services\LogService.cs" />
     <Compile Include="Models\RecordingSession.cs" />
     <Compile Include="Models\RecordingSettings.cs" />
     <Compile Include="Models\Timer.cs" />

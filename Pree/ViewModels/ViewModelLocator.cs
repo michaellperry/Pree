@@ -18,6 +18,7 @@ namespace Pree.ViewModels
         private Timer _timer = new Timer();
         private AudioFileService _audioFileService;
         private AudioFileService _timelineFileService;
+        private LogService _logService;
         private RecordingSession _recordingSession;
 
         public ViewModelLocator()
@@ -26,8 +27,12 @@ namespace Pree.ViewModels
             _audioFilter = new AudioFilter(_recordingSettings);
             _audioFileService = new AudioFileService(_audioFilter);
             _timelineFileService = new AudioFileService(_audioFilter);
-            _audioTarget = new AudioTarget(_audioFileService, _timelineFileService);
-
+            _logService = new LogService();
+            _audioTarget = new AudioTarget(
+                _audioFileService,
+                _timelineFileService,
+                _logService);
+            
             _recordingSession = new RecordingSession(
                 _audioSource,
                 _audioTarget,
