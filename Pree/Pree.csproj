@@ -180,7 +180,9 @@
     </ApplicationDefinition>
     <Compile Include="Assets\Placeholder.cs" />
     <Compile Include="Camtasia\CamProject.cs" />
+    <Compile Include="Camtasia\Segment.cs" />
     <Compile Include="Camtasia\Source.cs" />
+    <Compile Include="Camtasia\TimeLog.cs" />
     <Compile Include="Converters\ViewSelector.cs" />
     <Compile Include="CSP\AsyncSemaphore.cs" />
     <Compile Include="CSP\Process.cs" />

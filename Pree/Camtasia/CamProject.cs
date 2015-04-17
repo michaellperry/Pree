@@ -33,6 +33,13 @@ namespace Pree.Camtasia
             return sources.Where(s => s.Src.EndsWith("_time.wav")).FirstOrDefault();
         }
 
+        public int GetMaxId()
+        {
+            return _document.SelectNodes("//CSMLData//*[@id]")
+                .OfType<XmlNode>()
+                .Select(n => int.Parse(GetAttribute(n, "id")))
+                .Max();
+        }
         public void Write(string filename)
         {
             using (var writer = XmlWriter.Create(filename))

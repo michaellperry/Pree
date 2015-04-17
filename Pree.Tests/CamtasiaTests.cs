@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pree.Camtasia;
 using FluentAssertions;
+using System.Linq;
 
 namespace Pree.Tests
 {
@@ -29,6 +30,24 @@ namespace Pree.Tests
             
             timeline.Src.Should().Be(@"C:\Recording\test_time.wav");
             timeline.Id.Should().Be(6);
+        }
+
+        [TestMethod]
+        public void CanLoadLog()
+        {
+            var timelineFilename = _camproj.GetTimeline().Src;
+            string logFilename = timelineFilename.Substring(0, timelineFilename.Length - "_time.wav".Length) + ".log";
+            TimeLog log = TimeLog.Load(logFilename);
+
+            log.Segments.Count().Should().Be(3);
+        }
+
+        [TestMethod]
+        public void CanReadIds()
+        {
+            int maxId = _camproj.GetMaxId();
+
+            maxId.Should().Be(97);
         }
     }
 }
