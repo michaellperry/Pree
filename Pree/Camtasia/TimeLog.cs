@@ -18,21 +18,28 @@ namespace Pree.Camtasia
 
         public static TimeLog Load(string filename)
         {
-            List<Segment> segments = new List<Segment>();
-
-            using (StreamReader reader = new StreamReader(filename))
+            try
             {
-                while (!reader.EndOfStream)
+                List<Segment> segments = new List<Segment>();
+
+                using (StreamReader reader = new StreamReader(filename))
                 {
-                    var line = reader.ReadLine();
-                    var times = line.Split(',')
-                        .Select(s => s.Trim())
-                        .Select(s => DateTime.Parse(s))
-                        .ToArray();
-                    segments.Add(new Segment(times[0], times[1]));
+                    while (!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine();
+                        var times = line.Split(',')
+                            .Select(s => s.Trim())
+                            .Select(s => DateTime.Parse(s))
+                            .ToArray();
+                        segments.Add(new Segment(times[0], times[1]));
+                    }
                 }
+                return new TimeLog(segments);
             }
-            return new TimeLog(segments);
+            catch (Exception ex)
+            {
+                throw new ApplicationException(String.Format("The timeline log file {0} is corrupt.", filename));
+            }
         }
 
         public IEnumerable<Segment> Segments

@@ -4,6 +4,9 @@ using Pree.Models;
 using System.Collections.Generic;
 using System.Windows.Input;
 using UpdateControls.XAML;
+using System.IO;
+using System.Windows;
+using System;
 
 namespace Pree.ViewModels
 {
@@ -57,6 +60,15 @@ namespace Pree.ViewModels
             }
         }
 
+        public ICommand Camproj
+        {
+            get
+            {
+                return MakeCommand
+                    .Do(() => ProcessCamproj());
+            }
+        }
+
         private static DeviceViewModel GetDeviceViewModel(int deviceIndex)
         {
             return new DeviceViewModel(deviceIndex, WaveIn.GetCapabilities(deviceIndex));
@@ -75,6 +87,36 @@ namespace Pree.ViewModels
             if (result ?? false)
             {
                 _recordingSession.BeginSession(dialog.FileName);
+            }
+        }
+
+        private void ProcessCamproj()
+        {
+            OpenFileDialog dialog = new OpenFileDialog()
+            {
+                DefaultExt = "camproj",
+                Filter = "Camtasia projects (*.camproj)|*.camproj|All files (*.*)|*.*"
+            };
+            bool? result = dialog.ShowDialog();
+
+            if (result ?? false)
+            {
+                try
+                {
+                    string inputFilename = dialog.FileName;
+                    var camproj = Camtasia.CamProject.Load(inputFilename);
+                    string outputFilename =
+                        Path.Combine(
+                            Path.GetDirectoryName(inputFilename),
+                            Path.GetFileNameWithoutExtension(inputFilename) +
+                            "_trimmed.camproj");
+                    camproj.TrimAndWrite(outputFilename);
+                    MessageBox.Show("Finished processing");
+                }
+                catch (ApplicationException ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
             }
         }
     }

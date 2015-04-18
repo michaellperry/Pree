@@ -32,8 +32,16 @@
                     <System:Int32>48000</System:Int32>
                 </ComboBox>
             </Grid>
-            <Button Content="{DynamicResource WavFile}" Command="{Binding Start}" Width="100" Height="100" HorizontalAlignment="Center" Margin="6,24,6,6"/>
-            <TextBlock x:Name="textBlock1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Create File" VerticalAlignment="Top" Margin="6,0,6,6"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,18,0,0">
+                <StackPanel>
+                    <Button Content="{DynamicResource WavFile}" Command="{Binding Start}" Width="100" Height="100" HorizontalAlignment="Center" Margin="6"/>
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Create File" VerticalAlignment="Top" Margin="6,0,6,6"/>
+                </StackPanel>
+                <StackPanel>
+                    <Button Content="{DynamicResource Camtasia}" Command="{Binding Camproj}" Width="100" Height="100" HorizontalAlignment="Center" Margin="6"/>
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Process Camproj" VerticalAlignment="Top" Margin="6,0,6,6"/>
+                </StackPanel>
+            </StackPanel>
         </StackPanel>
 
     </Grid>

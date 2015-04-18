@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Diagnostics;
+using System.IO;
 
 namespace Pree.Camtasia
 {
@@ -31,6 +32,26 @@ namespace Pree.Camtasia
             return new CamProject(document);
         }
 
+        public void TrimAndWrite(string targetFilename)
+        {
+            var timeline = GetTimeline();
+            if (timeline == null)
+                throw new ApplicationException("The _time.wav file is not in the project.");
+
+            TimeSpan offset = GetOffset(timeline.Id);
+            var timelineFilename = timeline.Src;
+            string logFilename = timelineFilename.Substring(0, timelineFilename.Length - "_time.wav".Length) + ".log";
+            if (!File.Exists(logFilename))
+                throw new ApplicationException(String.Format("The timeline log file {0} does not exist.", logFilename));
+
+            TimeLog log = TimeLog.Load(logFilename);
+
+            var offsetSegments = log.Segments
+                .Select(s => new Segment(s.Start + offset, s.Duration));
+            Trim(offsetSegments);
+            Write(targetFilename);
+        }
+
         public Source GetTimeline()
         {
             var sources = _document.SelectNodes("/Project_Data/CSMLData/GoProject/Project/SourceBin/Source")
@@ -46,6 +67,9 @@ namespace Pree.Camtasia
                 .SelectNodes(String.Format("//Medias/AMFile[@src={0}]", id))
                 .OfType<XmlNode>()
                 .FirstOrDefault();
+            if (clip == null)
+                throw new ApplicationException("The _time.wav file is not in the timeline.");
+
             var start = int.Parse(GetAttribute(clip, "start"));
             string ms = GetAttribute(clip, "mediaStart");
             var mediaStart = int.Parse(ms.Substring(0, ms.Length - "/1".Length));

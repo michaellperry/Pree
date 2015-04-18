@@ -61,16 +61,8 @@ namespace Pree.Tests
         [TestMethod]
         public void CanTrimSegments()
         {
-            var timeline = _camproj.GetTimeline();
-            TimeSpan offset = _camproj.GetOffset(timeline.Id);
-            var timelineFilename = timeline.Src;
-            string logFilename = timelineFilename.Substring(0, timelineFilename.Length - "_time.wav".Length) + ".log";
-            TimeLog log = TimeLog.Load(logFilename);
-
-            var offsetSegments = log.Segments
-                .Select(s => new Segment(s.Start + offset, s.Duration));
-            _camproj.Trim(offsetSegments);
-            _camproj.Write(@"c:\Recording\test_clipped.camproj");
+            string targetFilename = @"c:\Recording\test_clipped.camproj";
+            _camproj.TrimAndWrite(targetFilename);
         }
     }
 }
