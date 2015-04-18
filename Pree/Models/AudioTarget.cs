@@ -13,7 +13,7 @@ namespace Pree.Models
         private readonly AudioFileService _timelineFileService;
         private readonly LogService _logService;
 
-        private TimeSpan _lastClipEnd = TimeSpan.Zero;
+        private TimeSpan _lastClipEnd;
         private Independent<bool> _isOpen = new Independent<bool>();
         
         public AudioTarget(
@@ -44,6 +44,7 @@ namespace Pree.Models
             _audioFileService.OpenFile(destination, recordingSettings);
             _timelineFileService.OpenFile(timelineFileName, recordingSettings);
             _logService.OpenFile(logFileName);
+            _lastClipEnd = TimeSpan.Zero;
 
             _isOpen.Value = true;
         }
