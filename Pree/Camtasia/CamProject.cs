@@ -59,6 +59,12 @@ namespace Pree.Camtasia
 
         public void Trim(IEnumerable<Segment> segments)
         {
+            TrimAudio(segments);
+            TrimVideo(segments);
+        }
+
+        private void TrimAudio(IEnumerable<Segment> segments)
+        {
             var clips = _document.SelectNodes("//Medias/AMFile")
                 .OfType<XmlNode>()
                 .ToList();
@@ -92,6 +98,58 @@ namespace Pree.Camtasia
                         SetAttribute(newClip, "duration", segmentDuration.ToString());
                         SetAttribute(newClip, "mediaStart", string.Format("{0}/1", mediaStart + segmentStart - start));
                         SetAttribute(newClip, "mediaDuration", string.Format("{0}/1", segmentDuration));
+                        parent.AppendChild(newClip);
+
+                        targetStart += segmentDuration;
+                        _nextId++;
+                    }
+                }
+            }
+        }
+
+        private void TrimVideo(IEnumerable<Segment> segments)
+        {
+            var clips = _document.SelectNodes("//Medias/UnifiedMedia")
+                .OfType<XmlNode>()
+                .ToList();
+
+            foreach (var clip in clips)
+            {
+                var parent = clip.ParentNode;
+                var amfile = clip.SelectSingleNode("AMFile");
+                int start = int.Parse(GetAttribute(amfile, "start"));
+                int duration = int.Parse(GetAttribute(amfile, "duration"));
+                string ms = GetAttribute(amfile, "mediaStart");
+                int mediaStart = int.Parse(ms.Substring(0, ms.Length - "/1".Length));
+
+                parent.RemoveChild(clip);
+
+                int targetStart = 0;
+                foreach (var segment in segments)
+                {
+                    int segmentStart = (int)(segment.Start.TimeOfDay.TotalSeconds * 30.0 + 0.5);
+                    int segmentEnd = (int)((segment.Start.TimeOfDay.TotalSeconds + segment.Duration.TimeOfDay.TotalSeconds) * 30.0 + 0.5);
+
+                    if (segmentStart < start)
+                        segmentStart = start;
+                    if (segmentEnd > start + duration)
+                        segmentEnd = start + duration;
+                    int segmentDuration = segmentEnd - segmentStart;
+                    if (segmentDuration > 0)
+                    {
+                        var newClip = clip.Clone();
+                        var newAmfile = newClip.SelectSingleNode("AMFile");
+                        SetAttribute(newAmfile, "id", _nextId.ToString());
+                        SetAttribute(newAmfile, "start", targetStart.ToString());
+                        SetAttribute(newAmfile, "duration", segmentDuration.ToString());
+                        SetAttribute(newAmfile, "mediaStart", string.Format("{0}/1", mediaStart + segmentStart - start));
+                        SetAttribute(newAmfile, "mediaDuration", string.Format("{0}/1", segmentDuration));
+                        var newScreenvmfile = newClip.SelectSingleNode("ScreenVMFile");
+                        SetAttribute(newScreenvmfile, "id", _nextId.ToString());
+                        SetAttribute(newScreenvmfile, "start", targetStart.ToString());
+                        SetAttribute(newScreenvmfile, "duration", segmentDuration.ToString());
+                        SetAttribute(newScreenvmfile, "mediaStart", string.Format("{0}/1", mediaStart + segmentStart - start));
+                        SetAttribute(newScreenvmfile, "mediaDuration", string.Format("{0}/1", segmentDuration));
                         parent.AppendChild(newClip);
 
                         targetStart += segmentDuration;
