@@ -75,10 +75,8 @@ namespace Pree.Models
 
             _waveIn = new WaveIn();
             _waveIn.DeviceNumber = recordingSettings.DeviceIndex;
+            _waveIn.WaveFormat = recordingSettings.CreateWaveFormat();
 
-            _waveIn.WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(
-                recordingSettings.SampleRate,
-                recordingSettings.Channels);
             WaveInProvider waveInProvider = new WaveInProvider(_waveIn);
             _sampleProvider = waveInProvider.ToSampleProvider();
 

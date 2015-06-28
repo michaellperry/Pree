@@ -85,6 +85,7 @@ namespace Pree.Camtasia
         {
             TrimAudio(segments);
             TrimVideo(segments);
+            TrimUnifiedMedia(segments);
         }
 
         private void TrimAudio(IEnumerable<Segment> segments)
@@ -133,6 +134,50 @@ namespace Pree.Camtasia
 
         private void TrimVideo(IEnumerable<Segment> segments)
         {
+            var clips = _document.SelectNodes("//Medias/ScreenVMFile")
+                .OfType<XmlNode>()
+                .ToList();
+
+            foreach (var clip in clips)
+            {
+                var parent = clip.ParentNode;
+                int start = int.Parse(GetAttribute(clip, "start"));
+                int duration = int.Parse(GetAttribute(clip, "duration"));
+                string ms = GetAttribute(clip, "mediaStart");
+                int mediaStart = int.Parse(ms.Substring(0, ms.Length - "/1".Length));
+
+                parent.RemoveChild(clip);
+
+                int targetStart = 0;
+                foreach (var segment in segments)
+                {
+                    int segmentStart = (int)(segment.Start.TimeOfDay.TotalSeconds * 30.0 + 0.5);
+                    int segmentEnd = (int)((segment.Start.TimeOfDay.TotalSeconds + segment.Duration.TimeOfDay.TotalSeconds) * 30.0 + 0.5);
+
+                    if (segmentStart < start)
+                        segmentStart = start;
+                    if (segmentEnd > start + duration)
+                        segmentEnd = start + duration;
+                    int segmentDuration = segmentEnd - segmentStart;
+                    if (segmentDuration > 0)
+                    {
+                        var newClip = clip.Clone();
+                        SetAttribute(newClip, "id", _nextId.ToString());
+                        SetAttribute(newClip, "start", targetStart.ToString());
+                        SetAttribute(newClip, "duration", segmentDuration.ToString());
+                        SetAttribute(newClip, "mediaStart", string.Format("{0}/1", mediaStart + segmentStart - start));
+                        SetAttribute(newClip, "mediaDuration", string.Format("{0}/1", segmentDuration));
+                        parent.AppendChild(newClip);
+
+                        targetStart += segmentDuration;
+                        _nextId++;
+                    }
+                }
+            }
+        }
+
+        private void TrimUnifiedMedia(IEnumerable<Segment> segments)
+        {
             var clips = _document.SelectNodes("//Medias/UnifiedMedia")
                 .OfType<XmlNode>()
                 .ToList();
@@ -169,11 +214,23 @@ namespace Pree.Camtasia
                         SetAttribute(newAmfile, "mediaStart", string.Format("{0}/1", mediaStart + segmentStart - start));
                         SetAttribute(newAmfile, "mediaDuration", string.Format("{0}/1", segmentDuration));
                         var newScreenvmfile = newClip.SelectSingleNode("ScreenVMFile");
-                        SetAttribute(newScreenvmfile, "id", _nextId.ToString());
-                        SetAttribute(newScreenvmfile, "start", targetStart.ToString());
-                        SetAttribute(newScreenvmfile, "duration", segmentDuration.ToString());
-                        SetAttribute(newScreenvmfile, "mediaStart", string.Format("{0}/1", mediaStart + segmentStart - start));
-                        SetAttribute(newScreenvmfile, "mediaDuration", string.Format("{0}/1", segmentDuration));
+                        if (newScreenvmfile != null)
+                        {
+                            SetAttribute(newScreenvmfile, "id", _nextId.ToString());
+                            SetAttribute(newScreenvmfile, "start", targetStart.ToString());
+                            SetAttribute(newScreenvmfile, "duration", segmentDuration.ToString());
+                            SetAttribute(newScreenvmfile, "mediaStart", string.Format("{0}/1", mediaStart + segmentStart - start));
+                            SetAttribute(newScreenvmfile, "mediaDuration", string.Format("{0}/1", segmentDuration));
+                        }
+                        var newVmfile = newClip.SelectSingleNode("VMFile");
+                        if (newVmfile != null)
+                        {
+                            SetAttribute(newVmfile, "id", _nextId.ToString());
+                            SetAttribute(newVmfile, "start", targetStart.ToString());
+                            SetAttribute(newVmfile, "duration", segmentDuration.ToString());
+                            SetAttribute(newVmfile, "mediaStart", string.Format("{0}/1", mediaStart + segmentStart - start));
+                            SetAttribute(newVmfile, "mediaDuration", string.Format("{0}/1", segmentDuration));
+                        }
                         parent.AppendChild(newClip);
 
                         targetStart += segmentDuration;

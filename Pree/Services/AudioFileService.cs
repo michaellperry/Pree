@@ -14,8 +14,7 @@ namespace Pree.Services
     {
         private readonly AudioFilter _audioFilter;
 
-        private int _sampleRate;
-        private int _channels;
+        private WaveFormat _waveFormat;
         private WaveFileWriter _writer = null;
 
         public AudioFileService(AudioFilter audioFilter)
@@ -25,12 +24,11 @@ namespace Pree.Services
 
         public void OpenFile(string destination, RecordingSettings recordingSettings)
         {
-            _sampleRate = recordingSettings.SampleRate;
-            _channels = recordingSettings.Channels;
+            _waveFormat = recordingSettings.CreateWaveFormat();
 
             Enqueue(delegate
             {
-                OnOpenFile(destination, _sampleRate, _channels);
+                OnOpenFile(destination, _waveFormat);
             });
         }
 
@@ -60,14 +58,10 @@ namespace Pree.Services
             });
         }
 
-        private void OnOpenFile(string destination, int sampleRate, int channels)
+        private void OnOpenFile(string destination, WaveFormat waveFormat)
         {
             if (_writer == null)
             {
-                WaveFormat waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(
-                    sampleRate,
-                    channels);
-
                 _writer = new WaveFileWriter(destination, waveFormat);
             }
         }
@@ -92,14 +86,14 @@ namespace Pree.Services
 
         private void OnWriteTone(TimeSpan duration)
         {
-            long sampleCount = (long)(duration.TotalSeconds * _sampleRate) * _channels;
+            long sampleCount = (long)(duration.TotalSeconds * _waveFormat.SampleRate) * _waveFormat.Channels;
             double phaseAngle = 0.0;
             for (long index = 0; index < sampleCount; index++)
             {
                 float sample = (float)(0.5 * Math.Sin(phaseAngle));
                 _writer.WriteSample(sample);
                 phaseAngle +=
-                    2 * Math.PI * 220.0 / _sampleRate / _channels;
+                    2 * Math.PI * 220.0 / _waveFormat.SampleRate / _waveFormat.Channels;
 
                 if (phaseAngle > 2 * Math.PI)
                     phaseAngle -= 2 * Math.PI;

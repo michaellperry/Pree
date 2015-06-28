@@ -7,7 +7,6 @@ namespace Pree.Models
     {
         private Independent<int> _deviceIndex = new Independent<int>();
         private Independent<int> _channels = new Independent<int>();
-        private Independent<int> _bitsPerSample = new Independent<int>();
         private Independent<int> _sampleRate = new Independent<int>();
         private Independent<int> _trimMilliseconds = new Independent<int>();
 
@@ -17,7 +16,6 @@ namespace Pree.Models
             {
                 _deviceIndex.Value = waveIn.DeviceNumber;
                 _channels.Value = waveIn.WaveFormat.Channels;
-                _bitsPerSample.Value = 32;
                 _sampleRate.Value = 44100;
                 _trimMilliseconds.Value = 400;
             }
@@ -45,6 +43,17 @@ namespace Pree.Models
         {
             get { return _trimMilliseconds; }
             set { _trimMilliseconds.Value = value; }
+        }
+
+        public WaveFormat CreateWaveFormat()
+        {
+            return WaveFormat.CreateCustomFormat(
+                WaveFormatEncoding.Pcm,
+                SampleRate,
+                Channels,
+                2 * SampleRate * Channels,
+                2,
+                16);
         }
     }
 }
