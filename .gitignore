@@ -1,6 +1,8 @@
 packages/
 NuGet/Core/lib/
 *.ide
+.vs/
+Pree/Package/
 
 #ignore thumbnails created by windows
 Thumbs.db

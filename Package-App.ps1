@@ -1,0 +1,1 @@
+DesktopAppConverter.exe -Installer .\Pree\bin\Release\ -AppExecutable Pree.exe -Destination .\Pree\Package\ -PackageName Pree -Publisher CN=FacetedWorlds -Version 1.1.0.0 -MakeAppx -Sign -Verify
