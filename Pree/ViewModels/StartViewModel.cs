@@ -113,7 +113,7 @@ namespace Pree.ViewModels
                     camproj.TrimAndWrite(outputFilename);
                     MessageBox.Show("Finished processing");
                 }
-                catch (ApplicationException ex)
+                catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message);
                 }

@@ -36,7 +36,7 @@ namespace Pree.Camtasia
                 }
                 return new TimeLog(segments);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw new ApplicationException(String.Format("The timeline log file {0} is corrupt.", filename));
             }
