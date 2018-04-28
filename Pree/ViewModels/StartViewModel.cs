@@ -7,6 +7,7 @@ using UpdateControls.XAML;
 using System.IO;
 using System.Windows;
 using System;
+using Pree.Views;
 
 namespace Pree.ViewModels
 {
@@ -67,6 +68,11 @@ namespace Pree.ViewModels
                 return MakeCommand
                     .Do(() => ProcessCamproj());
             }
+        }
+
+        public void Help()
+        {
+            new HelpView().ShowDialog();
         }
 
         private static DeviceViewModel GetDeviceViewModel(int deviceIndex)
