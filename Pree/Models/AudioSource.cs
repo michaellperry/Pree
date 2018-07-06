@@ -17,6 +17,7 @@ namespace Pree.Models
         private Independent<bool> _recording = new Independent<bool>();
         private Independent<float> _amplitude = new Independent<float>();
         private Independent<TimeSpan> _recordingTime = new Independent<TimeSpan>(TimeSpan.Zero);
+        private Independent<Exception> _lastException = new Independent<Exception>();
 
         private WaveIn _waveIn;
         private ISampleProvider _sampleProvider;
@@ -68,26 +69,36 @@ namespace Pree.Models
             }
         }
 
+        public Exception LastException => _lastException;
+
         public void StartRecording(RecordingSettings recordingSettings)
         {
-            Contract.Requires(!Recording);
-            Contract.Ensures(Recording);
+            _lastException.Value = null;
+            try
+            {
+                Contract.Requires(!Recording);
+                Contract.Ensures(Recording);
 
-            _waveIn = new WaveIn();
-            _waveIn.DeviceNumber = recordingSettings.DeviceIndex;
-            _waveIn.WaveFormat = recordingSettings.CreateWaveFormat();
+                _waveIn = new WaveIn();
+                _waveIn.DeviceNumber = recordingSettings.DeviceIndex;
+                _waveIn.WaveFormat = recordingSettings.CreateWaveFormat();
 
-            WaveInProvider waveInProvider = new WaveInProvider(_waveIn);
-            _sampleProvider = waveInProvider.ToSampleProvider();
+                WaveInProvider waveInProvider = new WaveInProvider(_waveIn);
+                _sampleProvider = waveInProvider.ToSampleProvider();
 
-            _waveIn.DataAvailable += DataAvailable;
+                _waveIn.DataAvailable += DataAvailable;
 
-            _content = new MemoryStream();
-            _waveIn.StartRecording();
+                _content = new MemoryStream();
+                _waveIn.StartRecording();
 
-            _clipStart = DateTime.Now - _sessionStart;
+                _clipStart = DateTime.Now - _sessionStart;
 
-            _recording.Value = true;
+                _recording.Value = true;
+            }
+            catch (Exception ex)
+            {
+                _lastException.Value = ex;
+            }
         }
 
         public Clip StopRecording()
@@ -99,9 +110,17 @@ namespace Pree.Models
 
             if (_waveIn != null)
             {
-                _waveIn.StopRecording();
-                _waveIn.DataAvailable -= DataAvailable;
-                _waveIn.Dispose();
+                _lastException.Value = null;
+                try
+                {
+                    _waveIn.StopRecording();
+                    _waveIn.DataAvailable -= DataAvailable;
+                    _waveIn.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    _lastException.Value = ex;
+                }
                 _waveIn = null;
             }
             _sampleProvider = null;

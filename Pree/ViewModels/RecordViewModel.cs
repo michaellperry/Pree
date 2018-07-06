@@ -77,5 +77,7 @@ namespace Pree.ViewModels
         {
             get { return String.Format(@"{0:hh\:mm\:ss}", _recordingSession.ElapsedTime); }
         }
+
+        public string LastError => _recordingSession.LastException?.Message;
     }
 }

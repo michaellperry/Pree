@@ -63,6 +63,8 @@ namespace Pree.Models
             }
         }
 
+        public Exception LastException => _audioSource.LastException;
+
         public void BeginSession(string fileName)
         {
             Contract.Requires(!IsActive);
