@@ -14,13 +14,13 @@ namespace Pree.Tests
         [TestInitialize]
         public void Initialize()
         {
-            _camproj = CamProject.Load(@"c:\Recording\test - Before.camproj");
+            _camproj = CamProject.Load(@"C:\Recording\Distributed Systems\2-Designing Reliable Applications\10-Migrating to Immutable Records.tscproj");
         }
 
         [TestMethod]
         public void CanLoadCamproj()
         {
-            _camproj.Write(@"c:\Recording\test_clipped.camproj");
+            _camproj.Write(@"C:\Recording\Distributed Systems\2-Designing Reliable Applications\10-Migrating to Immutable Records_passthroug.tscproj");
         }
 
         [TestMethod]
@@ -28,8 +28,8 @@ namespace Pree.Tests
         {
             var timeline = _camproj.GetTimeline();
             
-            timeline.Src.Should().Be(@"C:\Recording\test_time.wav");
-            timeline.Id.Should().Be(6);
+            timeline.Src.Should().Be(@"C:\Recording\Distributed Systems\2-Designing Reliable Applications\10-Migrating to Immutable Records_time.wav");
+            timeline.Id.Should().Be(2);
         }
 
         [TestMethod]
@@ -39,7 +39,7 @@ namespace Pree.Tests
             string logFilename = timelineFilename.Substring(0, timelineFilename.Length - "_time.wav".Length) + ".log";
             TimeLog log = TimeLog.Load(logFilename);
 
-            log.Segments.Count().Should().Be(3);
+            log.Segments.Count().Should().Be(50);
         }
 
         [TestMethod]
@@ -47,7 +47,7 @@ namespace Pree.Tests
         {
             int maxId = _camproj.GetNextId();
 
-            maxId.Should().Be(97);
+            maxId.Should().Be(8);
         }
 
         [TestMethod]
@@ -55,13 +55,13 @@ namespace Pree.Tests
         {
             var timeline = _camproj.GetTimeline();
             TimeSpan offset = _camproj.GetOffset(timeline.Id);
-            offset.TotalSeconds.Should().BeApproximately(238.0 / 30.0, 0.001);
+            offset.TotalSeconds.Should().BeApproximately(-20.2, 0.001);
         }
 
         [TestMethod]
         public void CanTrimSegments()
         {
-            string targetFilename = @"c:\Recording\test_clipped.camproj";
+            string targetFilename = @"C:\Recording\Distributed Systems\2-Designing Reliable Applications\10-Migrating to Immutable Records_clipped.tscproj";
             _camproj.TrimAndWrite(targetFilename);
         }
     }
