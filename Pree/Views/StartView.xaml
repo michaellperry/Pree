@@ -38,8 +38,8 @@
                     <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Create File" VerticalAlignment="Top" Margin="6,0,6,6"/>
                 </StackPanel>
                 <StackPanel>
-                    <Button Content="{DynamicResource Camtasia}" Command="{Binding Camproj}" Width="100" Height="100" HorizontalAlignment="Center" Margin="6"/>
-                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Process Camproj" VerticalAlignment="Top" Margin="6,0,6,6"/>
+                    <Button Content="{DynamicResource Camtasia}" Command="{Binding Tscproj}" Width="100" Height="100" HorizontalAlignment="Center" Margin="6"/>
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Process Tscproj" VerticalAlignment="Top" Margin="6,0,6,6"/>
                 </StackPanel>
             </StackPanel>
         </StackPanel>

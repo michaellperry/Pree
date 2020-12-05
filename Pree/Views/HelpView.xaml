@@ -19,7 +19,7 @@
         <TextBlock Style="{DynamicResource HelpText}" Margin="10,0,0,0" Text="&#x2022; Ctrl+Shift+F10 - Record"/>
         <TextBlock Style="{DynamicResource HelpText}" Margin="10,0,0,0" Text="&#x2022; Ctrl+Shift+F11 - Stop, toggle between keep and discard"/>
         <TextBlock Style="{DynamicResource HelpText}" Margin="0,10,0,0" TextWrapping="Wrap" Text="The recording automatically trims 200 ms from the beginning and end of each clip to mask the sound of the keyboard or remote. Pause for half a beat before speaking. Practice before using the tool in anger."/>
-        <TextBlock Style="{DynamicResource HelpText}" Margin="0,10,0,0" TextWrapping="Wrap" Text="Record video simultaneously with Camtasia 7. Afterward, add the _time.wav file to the project and align it with the video. Save the project, close Camtasia, and click Process Camproj. This will generate a new project with edited video. Delete the _time.wav track and replace it with the pre-edited audio track." />
+        <TextBlock Style="{DynamicResource HelpText}" Margin="0,10,0,0" TextWrapping="Wrap" Text="Record video simultaneously with Camtasia. Afterward, add the _time.wav file to the project and align it with the video. Save the project, close Camtasia, and click Process Tscproj. This will generate a new project with edited video. Delete the _time.wav track and replace it with the pre-edited audio track. It will line up exactly!" />
         <Button Width="80" Height="30" Margin="20" IsDefault="True" IsCancel="True" Click="Button_Click" Content="OK"/>
     </StackPanel>
 </Window>

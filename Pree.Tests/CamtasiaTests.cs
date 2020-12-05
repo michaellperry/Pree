@@ -9,18 +9,18 @@ namespace Pree.Tests
     [TestClass]
     public class CamtasiaTests
     {
-        private CamProject _camproj;
+        private TscProject _camproj;
 
         [TestInitialize]
         public void Initialize()
         {
-            _camproj = CamProject.Load(@"C:\Recording\Distributed Systems\2-Designing Reliable Applications\10-Migrating to Immutable Records.tscproj");
+            _camproj = TscProject.Load(@"C:\Recording\Distributed Systems\3-Connecting Services\4-Publish to RabbitMQ.tscproj");
         }
 
         [TestMethod]
         public void CanLoadCamproj()
         {
-            _camproj.Write(@"C:\Recording\Distributed Systems\2-Designing Reliable Applications\10-Migrating to Immutable Records_passthroug.tscproj");
+            _camproj.Write(@"C:\Recording\Distributed Systems\3-Connecting Services\4-Publish to RabbitMQ_passthrough.tscproj");
         }
 
         [TestMethod]

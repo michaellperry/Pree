@@ -8,16 +8,17 @@ using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 
 namespace Pree.Camtasia
 {
-    public class CamProject
+    public class TscProject
     {
         private JObject _document;
 
         private int _nextId;
 
-        private CamProject(JObject document)
+        private TscProject(JObject document)
         {
             _document = document;
 
@@ -27,13 +28,15 @@ namespace Pree.Camtasia
                 .Max();
         }
 
-        public static CamProject Load(string filename)
+        public static TscProject Load(string filename)
         {
             using (var file = File.OpenText(filename))
-            using (var reader = new JsonTextReader(file))
             {
-                var document = (JObject)JToken.ReadFrom(reader);
-                return new CamProject(document);
+                var contents = file.ReadToEnd();
+                Regex error = new Regex(@"""integratedLUFS"" : [0-9\-.]+e[0-9+]+");
+                contents = error.Replace(contents, @"""integratedLUFS"" : 0");
+                var document = (JObject)JToken.Parse(contents);
+                return new TscProject(document);
             }
         }
 

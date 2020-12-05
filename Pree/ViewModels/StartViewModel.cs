@@ -61,12 +61,12 @@ namespace Pree.ViewModels
             }
         }
 
-        public ICommand Camproj
+        public ICommand Tscproj
         {
             get
             {
                 return MakeCommand
-                    .Do(() => ProcessCamproj());
+                    .Do(() => ProcessTscproj());
             }
         }
 
@@ -96,12 +96,12 @@ namespace Pree.ViewModels
             }
         }
 
-        private void ProcessCamproj()
+        private void ProcessTscproj()
         {
             OpenFileDialog dialog = new OpenFileDialog()
             {
-                DefaultExt = "camproj",
-                Filter = "Camtasia projects (*.camproj)|*.camproj|All files (*.*)|*.*"
+                DefaultExt = "tscproj",
+                Filter = "Camtasia projects (*.tscproj)|*.tscproj|All files (*.*)|*.*"
             };
             bool? result = dialog.ShowDialog();
 
@@ -110,13 +110,13 @@ namespace Pree.ViewModels
                 try
                 {
                     string inputFilename = dialog.FileName;
-                    var camproj = Camtasia.CamProject.Load(inputFilename);
+                    var tscproj = Camtasia.TscProject.Load(inputFilename);
                     string outputFilename =
                         Path.Combine(
                             Path.GetDirectoryName(inputFilename),
                             Path.GetFileNameWithoutExtension(inputFilename) +
-                            "_trimmed.camproj");
-                    camproj.TrimAndWrite(outputFilename);
+                            "_trimmed.tscproj");
+                    tscproj.TrimAndWrite(outputFilename);
                     MessageBox.Show("Finished processing");
                 }
                 catch (Exception ex)

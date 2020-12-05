@@ -206,7 +206,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Assets\Placeholder.cs" />
-    <Compile Include="Camtasia\CamProject.cs" />
+    <Compile Include="Camtasia\TscProject.cs" />
     <Compile Include="Camtasia\Segment.cs" />
     <Compile Include="Camtasia\Source.cs" />
     <Compile Include="Camtasia\TimeLog.cs" />
