@@ -48,11 +48,23 @@ namespace Pree.Camtasia
             if (!File.Exists(logFilename))
                 throw new ApplicationException(String.Format("The timeline log file {0} does not exist.", logFilename));
 
+            string compressedAudioFilename = timelineFilename.Substring(0, timelineFilename.Length - "_time.wav".Length) + ".wav";
+            int? compressedAudio = FindAudio(compressedAudioFilename);
+
             TimeLog log = TimeLog.Load(logFilename);
 
             var offsetSegments = log.Segments
                 .Select(s => new Segment(s.Start + offset, s.Duration));
-            Trim(offsetSegments);
+            if (compressedAudio == null)
+            {
+                TrimAudio(offsetSegments);
+                TrimUnifiedMedia(offsetSegments);
+            }
+            else
+            {
+                RemoveAudioExcept((int)compressedAudio);
+                TrimUnifiedMedia(offsetSegments);
+            }
             Write(targetFilename);
         }
 
@@ -64,6 +76,17 @@ namespace Pree.Camtasia
                 .Select(n => new Source((int)n["id"], (string)n["src"]));
 
             return sources.Where(s => s.Src.EndsWith("_time.wav")).FirstOrDefault();
+        }
+
+        public int? FindAudio(string source)
+        {
+            int? id = _document
+                .SelectTokens("$.sourceBin[*]")
+                .OfType<JObject>()
+                .Where(n => (string)n["src"] == source)
+                .Select(n => (int)n["id"])
+                .FirstOrDefault();
+            return id;
         }
 
         public TimeSpan GetOffset(int id)
@@ -135,6 +158,39 @@ namespace Pree.Camtasia
                 }
             }
         }
+
+        private void RemoveAudioExcept(int id)
+        {
+            var clips = _document
+                .SelectTokens("$.timeline.sceneTrack.scenes[*].csml.tracks[*].medias[*]")
+                .OfType<JObject>()
+                .Where(n => (string)n["_type"] == "AMFile" && (int)n["src"] != id)
+                .ToList();
+
+            foreach (var clip in clips)
+            {
+                clip.Remove();
+            }
+
+            var tracks = _document
+                .SelectTokens("$.timeline.sceneTrack.scenes[*].csml.tracks[*]")
+                .OfType<JObject>()
+                .ToList();
+            int trackIndex = 0;
+
+            foreach (var track in tracks)
+            {
+                if (!track.SelectTokens("$.medias[*]").Any())
+                {
+                    track.Remove();
+                }
+                else
+                {
+                    track["trackIndex"] = trackIndex++;
+                }
+            }
+        }
+
 
         private void TrimUnifiedMedia(IEnumerable<Segment> segments)
         {
