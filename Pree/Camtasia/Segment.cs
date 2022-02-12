@@ -9,13 +9,25 @@ namespace Pree.Camtasia
     {
         private readonly DateTime _start;
         private readonly DateTime _duration;
-        private readonly bool _isSilent;
+
+        private readonly int start;
+        private readonly int duration;
+        private readonly bool isSilent;
 
         public Segment(DateTime start, DateTime duration, bool isSilent)
         {
             _start = start;
             _duration = duration;
-            _isSilent = isSilent;
+            this.start = (int)(start.TimeOfDay.TotalSeconds * 30.0 + 0.5);
+            this.duration = (int)(duration.TimeOfDay.TotalSeconds * 30.0 + 0.5);
+            this.isSilent = isSilent;
+        }
+
+        public Segment(int start, int duration, bool isSilent)
+        {
+            this.start = start;
+            this.duration = duration;
+            this.isSilent = isSilent;
         }
 
         public override bool Equals(object obj)
@@ -28,22 +40,22 @@ namespace Pree.Camtasia
         {
             if (obj == null)
                 return false;
-            if (!EqualityComparer<DateTime>.Default.Equals(_start, obj._start))
+            if (start != obj.start)
                 return false;
-            if (!EqualityComparer<DateTime>.Default.Equals(_duration, obj._duration))
+            if (duration != obj.duration)
                 return false;
             return true;
         }
         public override int GetHashCode()
         {
             int hash = 0;
-            hash ^= EqualityComparer<DateTime>.Default.GetHashCode(_start);
-            hash ^= EqualityComparer<DateTime>.Default.GetHashCode(_duration);
+            hash ^= start;
+            hash ^= duration;
             return hash;
         }
         public override string ToString()
         {
-            return String.Format("{{ Start = {0}, Duration = {1} }}", _start, _duration);
+            return String.Format("{{ Start = {0}, Duration = {1} }}", start, duration);
         }
 
         public DateTime Start
@@ -61,6 +73,9 @@ namespace Pree.Camtasia
             }
         }
 
-        public bool IsSilent => _isSilent;
+        public int CamStart => start;
+        public int CamDuration => duration;
+
+        public bool IsSilent => isSilent;
     }
 }

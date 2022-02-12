@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using Pree.Services;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -44,6 +45,7 @@ namespace Pree.Camtasia
                 throw new ApplicationException("The _time.wav file is not in the project.");
 
             TimeSpan offset = GetOffset(timeline.Id);
+            int camOffset = (int)(offset.TotalSeconds * 30.0 + 0.5);
             var timelineFilename = timeline.Src;
             string logFilename = timelineFilename.Substring(0, timelineFilename.Length - "_time.wav".Length) + ".log";
             if (!File.Exists(logFilename))
@@ -56,7 +58,7 @@ namespace Pree.Camtasia
 
             var silenceService = new SilenceService(timelineFilename);
             var offsetSegments = log.Segments
-                .Select(s => new Segment(s.Start + offset, s.Duration, silenceService.IsSilent(s.Start, s.Duration)));
+                .Select(s => new Segment(s.CamStart + camOffset, s.CamDuration, silenceService.IsSilent(s.Start, s.Duration)));
             if (compressedAudio == null)
             {
                 TrimAudio(offsetSegments);
@@ -64,9 +66,10 @@ namespace Pree.Camtasia
             }
             else
             {
+                var scenes = ConstructScenes(offsetSegments).ToImmutableList();
                 RemoveAudioExcept((int)compressedAudio);
-                TrimAndCompressUnifiedMedia(offsetSegments);
-                TrimAndCompressAudio(offsetSegments);
+                TrimAndCompressUnifiedMedia(scenes);
+                TrimAndCompressAudio(scenes);
             }
             Write(targetFilename);
         }
@@ -112,6 +115,46 @@ namespace Pree.Camtasia
             return _nextId;
         }
 
+        private IEnumerable<Scene> ConstructScenes(IEnumerable<Segment> segments)
+        {
+            bool takeAudio = false;
+            int position = 0;
+            ImmutableList<Segment> audio = ImmutableList<Segment>.Empty;
+            ImmutableList<Segment> video = ImmutableList<Segment>.Empty;
+            foreach (var segment in segments)
+            {
+                if (takeAudio && segment.IsSilent)
+                {
+                    // Switching from audio to video.
+                    // Start a new scene.
+                    position += video.Sum(v => v.CamDuration);
+                    if (audio.Any() && video.Any())
+                    {
+                        yield return new Scene(audio, video, position);
+                    }
+                    position += audio.Sum(a => a.CamDuration);
+                    audio = ImmutableList<Segment>.Empty;
+                    video = ImmutableList<Segment>.Empty;
+                }
+                if (segment.IsSilent)
+                {
+                    video = video.Add(segment);
+                    takeAudio = false;
+                }
+                else
+                {
+                    audio = audio.Add(segment);
+                    takeAudio = true;
+                }
+            }
+
+            position += video.Sum(v => v.CamDuration);
+            if (audio.Any() && video.Any())
+            {
+                yield return new Scene(audio, video, position);
+            }
+        }
+
         private void TrimAudio(IEnumerable<Segment> segments)
         {
             var clips = _document
@@ -132,8 +175,8 @@ namespace Pree.Camtasia
                 int targetStart = 0;
                 foreach (var segment in segments)
                 {
-                    int segmentStart = (int)(segment.Start.TimeOfDay.TotalSeconds * 30.0 + 0.5);
-                    int segmentEnd = (int)((segment.Start.TimeOfDay.TotalSeconds + segment.Duration.TimeOfDay.TotalSeconds) * 30.0 + 0.5);
+                    int segmentStart = segment.CamStart;
+                    int segmentEnd = segment.CamStart + segment.CamDuration;
 
                     if (segmentStart < start)
                         segmentStart = start;
@@ -156,7 +199,7 @@ namespace Pree.Camtasia
             }
         }
 
-        private void TrimAndCompressAudio(IEnumerable<Segment> segments)
+        private void TrimAndCompressAudio(IEnumerable<Scene> scenes)
         {
             var clips = _document
                 .SelectTokens("$.timeline.sceneTrack.scenes[*].csml.tracks[*].medias[*]")
@@ -173,25 +216,33 @@ namespace Pree.Camtasia
 
                 clip.Remove();
 
-                int targetStart = 0;
-                foreach (var segment in segments)
+                int sceneStart = 0;
+                int segmentStart = 0;
+                foreach (var scene in scenes)
                 {
-                    int segmentDuration = (int)(segment.Duration.TimeOfDay.TotalSeconds * 30.0 + 0.5);
-                    if (segmentDuration > 0)
+                    int sceneDuration = scene.Duration;
+                    int targetStart = 0;
+                    foreach (var segment in scene.AudioSegments)
                     {
-                        if (!segment.IsSilent)
+                        int segmentDuration = segment.CamDuration;
+                        if (segmentDuration > 0)
                         {
-                            var newClip = clip.DeepClone();
-                            newClip["id"] = _nextId++;
-                            newClip["start"] = targetStart;
-                            newClip["duration"] = segmentDuration;
-                            newClip["mediaStart"] = mediaStart + targetStart - start;
-                            newClip["mediaDuration"] = segmentDuration;
-                            parent.Add(newClip);
-                        }
+                            if (!segment.IsSilent)
+                            {
+                                var newClip = clip.DeepClone();
+                                newClip["id"] = _nextId++;
+                                newClip["start"] = sceneStart + targetStart;
+                                newClip["duration"] = segmentDuration;
+                                newClip["mediaStart"] = mediaStart + scene.Position + targetStart - start;
+                                newClip["mediaDuration"] = segmentDuration;
+                                parent.Add(newClip);
+                            }
 
-                        targetStart += segmentDuration;
+                            segmentStart += segmentDuration;
+                            targetStart += segmentDuration;
+                        }
                     }
+                    sceneStart += sceneDuration;
                 }
             }
         }
@@ -249,8 +300,8 @@ namespace Pree.Camtasia
                 int targetStart = 0;
                 foreach (var segment in segments)
                 {
-                    int segmentStart = (int)(segment.Start.TimeOfDay.TotalSeconds * 30.0 + 0.5);
-                    int segmentEnd = (int)((segment.Start.TimeOfDay.TotalSeconds + segment.Duration.TimeOfDay.TotalSeconds) * 30.0 + 0.5);
+                    int segmentStart = segment.CamStart;
+                    int segmentEnd = segment.CamStart + segment.CamDuration;
 
                     if (segmentStart < start)
                         segmentStart = start;
@@ -291,7 +342,7 @@ namespace Pree.Camtasia
             }
         }
 
-        private void TrimAndCompressUnifiedMedia(IEnumerable<Segment> segments)
+        private void TrimAndCompressUnifiedMedia(IEnumerable<Scene> scenes)
         {
             var clips = _document
                 .SelectTokens("$.timeline.sceneTrack.scenes[*].csml.tracks[*].medias[*]")
@@ -309,50 +360,56 @@ namespace Pree.Camtasia
 
                 clip.Remove();
 
-                int targetStart = 0;
-                foreach (var segment in segments)
+                int sceneStart = 0;
+                foreach (var scene in scenes)
                 {
-                    int segmentStart = (int)(segment.Start.TimeOfDay.TotalSeconds * 30.0 + 0.5);
-                    int segmentEnd = (int)((segment.Start.TimeOfDay.TotalSeconds + segment.Duration.TimeOfDay.TotalSeconds) * 30.0 + 0.5);
-
-                    if (segmentStart < start)
-                        segmentStart = start;
-                    if (segmentEnd > start + duration)
-                        segmentEnd = start + duration;
-                    int segmentDuration = segmentEnd - segmentStart;
-                    if (segmentDuration > 0)
+                    int sceneDuration = scene.Duration;
+                    int targetStart = 0;
+                    foreach (var segment in scene.VideoSegments)
                     {
-                        if (segment.IsSilent)
+                        int segmentStart = segment.CamStart;
+                        int segmentEnd = segment.CamStart + segment.CamDuration;
+
+                        if (segmentStart < start)
+                            segmentStart = start;
+                        if (segmentEnd > start + duration)
+                            segmentEnd = start + duration;
+                        int segmentDuration = segmentEnd - segmentStart;
+                        if (segmentDuration > 0)
                         {
-                            var newClip = clip.DeepClone();
-                            newClip["id"] = _nextId++;
-                            newClip["start"] = targetStart;
-                            newClip["duration"] = segmentDuration;
-                            newClip["mediaStart"] = mediaStart + segmentStart - start;
-                            newClip["mediaDuration"] = segmentDuration;
-
-                            var newAmfile = newClip["audio"];
-                            newAmfile["id"] = _nextId++;
-                            newAmfile["start"] = targetStart;
-                            newAmfile["duration"] = segmentDuration;
-                            newAmfile["mediaStart"] = mediaStart + segmentStart - start;
-                            newAmfile["mediaDuration"] = segmentDuration;
-
-                            var newScreenvmfile = newClip["video"];
-                            if (newScreenvmfile != null)
+                            if (segment.IsSilent)
                             {
-                                newScreenvmfile["id"] = _nextId++;
-                                newScreenvmfile["start"] = targetStart;
-                                newScreenvmfile["duration"] = segmentDuration;
-                                newScreenvmfile["mediaStart"] = mediaStart + segmentStart - start;
-                                newScreenvmfile["mediaDuration"] = segmentDuration;
+                                var newClip = clip.DeepClone();
+                                newClip["id"] = _nextId++;
+                                newClip["start"] = sceneStart + targetStart;
+                                newClip["duration"] = segmentDuration;
+                                newClip["mediaStart"] = mediaStart + segmentStart - start;
+                                newClip["mediaDuration"] = segmentDuration;
+
+                                var newAmfile = newClip["audio"];
+                                newAmfile["id"] = _nextId++;
+                                newAmfile["start"] = sceneStart + targetStart;
+                                newAmfile["duration"] = segmentDuration;
+                                newAmfile["mediaStart"] = mediaStart + segmentStart - start;
+                                newAmfile["mediaDuration"] = segmentDuration;
+
+                                var newScreenvmfile = newClip["video"];
+                                if (newScreenvmfile != null)
+                                {
+                                    newScreenvmfile["id"] = _nextId++;
+                                    newScreenvmfile["start"] = sceneStart + targetStart;
+                                    newScreenvmfile["duration"] = segmentDuration;
+                                    newScreenvmfile["mediaStart"] = mediaStart + segmentStart - start;
+                                    newScreenvmfile["mediaDuration"] = segmentDuration;
+                                }
+
+                                parent.Add(newClip);
                             }
 
-                            parent.Add(newClip);
+                            targetStart += segmentDuration;
                         }
-
-                        targetStart += segmentDuration;
                     }
+                    sceneStart += sceneDuration;
                 }
             }
         }
