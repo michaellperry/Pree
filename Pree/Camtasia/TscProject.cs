@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
-using System.Diagnostics;
-using System.IO;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Pree.Camtasia
@@ -93,7 +89,6 @@ namespace Pree.Camtasia
         public void Trim(IEnumerable<Segment> segments)
         {
             TrimAudio(segments);
-            //TrimVideo(segments);
             TrimUnifiedMedia(segments);
         }
 
@@ -211,24 +206,6 @@ namespace Pree.Camtasia
             {
                 _document.WriteTo(writer);
             }
-        }
-
-        private static string GetAttribute(XmlNode n, string name)
-        {
-            var attribute = n.Attributes
-                .OfType<XmlAttribute>()
-                .Where(a => a.Name == name)
-                .Single();
-            return attribute.Value;
-        }
-
-        private void SetAttribute(XmlNode n, string name, string value)
-        {
-            var attribute = n.Attributes
-                .OfType<XmlAttribute>()
-                .Where(a => a.Name == name)
-                .Single();
-            attribute.Value = value;
         }
     }
 }
