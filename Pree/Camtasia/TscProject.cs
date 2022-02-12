@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Pree.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -53,8 +54,9 @@ namespace Pree.Camtasia
 
             TimeLog log = TimeLog.Load(logFilename);
 
+            var silenceService = new SilenceService(timelineFilename);
             var offsetSegments = log.Segments
-                .Select(s => new Segment(s.Start + offset, s.Duration));
+                .Select(s => new Segment(s.Start + offset, s.Duration, silenceService.IsSilent(s.Start, s.Duration)));
             if (compressedAudio == null)
             {
                 TrimAudio(offsetSegments);
@@ -223,31 +225,34 @@ namespace Pree.Camtasia
                     int segmentDuration = segmentEnd - segmentStart;
                     if (segmentDuration > 0)
                     {
-                        var newClip = clip.DeepClone();
-                        newClip["id"] = _nextId++;
-                        newClip["start"] = targetStart;
-                        newClip["duration"] = segmentDuration;
-                        newClip["mediaStart"] = mediaStart + segmentStart - start;
-                        newClip["mediaDuration"] = segmentDuration;
-
-                        var newAmfile = newClip["audio"];
-                        newAmfile["id"] = _nextId++;
-                        newAmfile["start"] = targetStart;
-                        newAmfile["duration"] = segmentDuration;
-                        newAmfile["mediaStart"] = mediaStart + segmentStart - start;
-                        newAmfile["mediaDuration"] = segmentDuration;
-
-                        var newScreenvmfile = newClip["video"];
-                        if (newScreenvmfile != null)
+                        if (segment.IsSilent)
                         {
-                            newScreenvmfile["id"] = _nextId++;
-                            newScreenvmfile["start"] = targetStart;
-                            newScreenvmfile["duration"] = segmentDuration;
-                            newScreenvmfile["mediaStart"] = mediaStart + segmentStart - start;
-                            newScreenvmfile["mediaDuration"] = segmentDuration;
-                        }
+                            var newClip = clip.DeepClone();
+                            newClip["id"] = _nextId++;
+                            newClip["start"] = targetStart;
+                            newClip["duration"] = segmentDuration;
+                            newClip["mediaStart"] = mediaStart + segmentStart - start;
+                            newClip["mediaDuration"] = segmentDuration;
 
-                        parent.Add(newClip);
+                            var newAmfile = newClip["audio"];
+                            newAmfile["id"] = _nextId++;
+                            newAmfile["start"] = targetStart;
+                            newAmfile["duration"] = segmentDuration;
+                            newAmfile["mediaStart"] = mediaStart + segmentStart - start;
+                            newAmfile["mediaDuration"] = segmentDuration;
+
+                            var newScreenvmfile = newClip["video"];
+                            if (newScreenvmfile != null)
+                            {
+                                newScreenvmfile["id"] = _nextId++;
+                                newScreenvmfile["start"] = targetStart;
+                                newScreenvmfile["duration"] = segmentDuration;
+                                newScreenvmfile["mediaStart"] = mediaStart + segmentStart - start;
+                                newScreenvmfile["mediaDuration"] = segmentDuration;
+                            }
+
+                            parent.Add(newClip);
+                        }
 
                         targetStart += segmentDuration;
                     }

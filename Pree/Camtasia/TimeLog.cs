@@ -31,7 +31,7 @@ namespace Pree.Camtasia
                             .Select(s => s.Trim())
                             .Select(s => DateTime.Parse(s))
                             .ToArray();
-                        segments.Add(new Segment(times[0], times[1]));
+                        segments.Add(new Segment(times[0], times[1], false));
                     }
                 }
                 return new TimeLog(segments);

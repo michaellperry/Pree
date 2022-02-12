@@ -222,6 +222,7 @@
     <Compile Include="Models\RecordingSettings.cs" />
     <Compile Include="Models\Timer.cs" />
     <Compile Include="Services\AudioFileService.cs" />
+    <Compile Include="Services\SilenceService.cs" />
     <Compile Include="Streams\TruncatingFilter.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\IContentViewModel.cs" />

@@ -9,11 +9,13 @@ namespace Pree.Camtasia
     {
         private readonly DateTime _start;
         private readonly DateTime _duration;
+        private readonly bool _isSilent;
 
-        public Segment(DateTime start, DateTime duration)
+        public Segment(DateTime start, DateTime duration, bool isSilent)
         {
             _start = start;
             _duration = duration;
+            _isSilent = isSilent;
         }
 
         public override bool Equals(object obj)
@@ -58,5 +60,7 @@ namespace Pree.Camtasia
                 return _duration;
             }
         }
+
+        public bool IsSilent => _isSilent;
     }
 }
