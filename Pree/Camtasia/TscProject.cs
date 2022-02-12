@@ -65,7 +65,8 @@ namespace Pree.Camtasia
             else
             {
                 RemoveAudioExcept((int)compressedAudio);
-                TrimUnifiedMedia(offsetSegments);
+                TrimAndCompressUnifiedMedia(offsetSegments);
+                TrimAndCompressAudio(offsetSegments);
             }
             Write(targetFilename);
         }
@@ -109,12 +110,6 @@ namespace Pree.Camtasia
         public int GetNextId()
         {
             return _nextId;
-        }
-
-        public void Trim(IEnumerable<Segment> segments)
-        {
-            TrimAudio(segments);
-            TrimUnifiedMedia(segments);
         }
 
         private void TrimAudio(IEnumerable<Segment> segments)
@@ -161,6 +156,46 @@ namespace Pree.Camtasia
             }
         }
 
+        private void TrimAndCompressAudio(IEnumerable<Segment> segments)
+        {
+            var clips = _document
+                .SelectTokens("$.timeline.sceneTrack.scenes[*].csml.tracks[*].medias[*]")
+                .OfType<JObject>()
+                .Where(n => (string)n["_type"] == "AMFile")
+                .ToList();
+
+            foreach (var clip in clips)
+            {
+                var parent = clip.Parent;
+                int start = (int)clip["start"];
+                int duration = (int)clip["duration"];
+                int mediaStart = (int)clip["mediaStart"];
+
+                clip.Remove();
+
+                int targetStart = 0;
+                foreach (var segment in segments)
+                {
+                    int segmentDuration = (int)(segment.Duration.TimeOfDay.TotalSeconds * 30.0 + 0.5);
+                    if (segmentDuration > 0)
+                    {
+                        if (!segment.IsSilent)
+                        {
+                            var newClip = clip.DeepClone();
+                            newClip["id"] = _nextId++;
+                            newClip["start"] = targetStart;
+                            newClip["duration"] = segmentDuration;
+                            newClip["mediaStart"] = mediaStart + targetStart - start;
+                            newClip["mediaDuration"] = segmentDuration;
+                            parent.Add(newClip);
+                        }
+
+                        targetStart += segmentDuration;
+                    }
+                }
+            }
+        }
+
         private void RemoveAudioExcept(int id)
         {
             var clips = _document
@@ -193,8 +228,70 @@ namespace Pree.Camtasia
             }
         }
 
-
         private void TrimUnifiedMedia(IEnumerable<Segment> segments)
+        {
+            var clips = _document
+                .SelectTokens("$.timeline.sceneTrack.scenes[*].csml.tracks[*].medias[*]")
+                .OfType<JObject>()
+                .Where(n => (string)n["_type"] == "UnifiedMedia")
+                .ToList();
+
+            foreach (var clip in clips)
+            {
+                var parent = clip.Parent;
+                var amfile = clip["audio"];
+                int start = (int)clip["start"];
+                int duration = (int)clip["duration"];
+                int mediaStart = (int)clip["mediaStart"];
+
+                clip.Remove();
+
+                int targetStart = 0;
+                foreach (var segment in segments)
+                {
+                    int segmentStart = (int)(segment.Start.TimeOfDay.TotalSeconds * 30.0 + 0.5);
+                    int segmentEnd = (int)((segment.Start.TimeOfDay.TotalSeconds + segment.Duration.TimeOfDay.TotalSeconds) * 30.0 + 0.5);
+
+                    if (segmentStart < start)
+                        segmentStart = start;
+                    if (segmentEnd > start + duration)
+                        segmentEnd = start + duration;
+                    int segmentDuration = segmentEnd - segmentStart;
+                    if (segmentDuration > 0)
+                    {
+                        var newClip = clip.DeepClone();
+                        newClip["id"] = _nextId++;
+                        newClip["start"] = targetStart;
+                        newClip["duration"] = segmentDuration;
+                        newClip["mediaStart"] = mediaStart + segmentStart - start;
+                        newClip["mediaDuration"] = segmentDuration;
+
+                        var newAmfile = newClip["audio"];
+                        newAmfile["id"] = _nextId++;
+                        newAmfile["start"] = targetStart;
+                        newAmfile["duration"] = segmentDuration;
+                        newAmfile["mediaStart"] = mediaStart + segmentStart - start;
+                        newAmfile["mediaDuration"] = segmentDuration;
+
+                        var newScreenvmfile = newClip["video"];
+                        if (newScreenvmfile != null)
+                        {
+                            newScreenvmfile["id"] = _nextId++;
+                            newScreenvmfile["start"] = targetStart;
+                            newScreenvmfile["duration"] = segmentDuration;
+                            newScreenvmfile["mediaStart"] = mediaStart + segmentStart - start;
+                            newScreenvmfile["mediaDuration"] = segmentDuration;
+                        }
+
+                        parent.Add(newClip);
+
+                        targetStart += segmentDuration;
+                    }
+                }
+            }
+        }
+
+        private void TrimAndCompressUnifiedMedia(IEnumerable<Segment> segments)
         {
             var clips = _document
                 .SelectTokens("$.timeline.sceneTrack.scenes[*].csml.tracks[*].medias[*]")
