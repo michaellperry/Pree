@@ -9,18 +9,18 @@ namespace Pree.Camtasia
 {
     class Scene
     {
-        private ImmutableList<Segment> audio;
-        private ImmutableList<Segment> video;
+        private ImmutableList<CamSegment> audio;
+        private ImmutableList<CamSegment> video;
 
-        public Scene(ImmutableList<Segment> audio, ImmutableList<Segment> video, int position)
+        public Scene(ImmutableList<CamSegment> audio, ImmutableList<CamSegment> video, int position)
         {
             this.audio = audio;
             this.video = video;
             Position = position;
         }
 
-        public IEnumerable<Segment> AudioSegments => audio;
-        public IEnumerable<Segment> VideoSegments => video;
+        public IEnumerable<CamSegment> AudioSegments => audio;
+        public IEnumerable<CamSegment> VideoSegments => video;
 
         public int Duration => Math.Max(
             audio.Sum(a => a.CamDuration),

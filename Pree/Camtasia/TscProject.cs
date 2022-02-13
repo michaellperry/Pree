@@ -58,7 +58,13 @@ namespace Pree.Camtasia
 
             var silenceService = new SilenceService(timelineFilename);
             var offsetSegments = log.Segments
-                .Select(s => new Segment(s.CamStart + camOffset, s.CamDuration, silenceService.IsSilent(s.Start, s.Duration)));
+                .Select(s =>
+                {
+                    var start = (int)(s.Start.TimeOfDay.TotalSeconds * 30.0 + 0.5);
+                    var duration = (int)(s.Duration.TimeOfDay.TotalSeconds * 30.0 + 0.5);
+                    bool isSilent = silenceService.IsSilent(s.Start, s.Duration);
+                    return new CamSegment(start + camOffset, duration, isSilent);
+                });
             if (compressedAudio == null)
             {
                 TrimAudio(offsetSegments);
@@ -115,12 +121,12 @@ namespace Pree.Camtasia
             return _nextId;
         }
 
-        private IEnumerable<Scene> ConstructScenes(IEnumerable<Segment> segments)
+        private IEnumerable<Scene> ConstructScenes(IEnumerable<CamSegment> segments)
         {
             bool takeAudio = false;
             int position = 0;
-            ImmutableList<Segment> audio = ImmutableList<Segment>.Empty;
-            ImmutableList<Segment> video = ImmutableList<Segment>.Empty;
+            ImmutableList<CamSegment> audio = ImmutableList<CamSegment>.Empty;
+            ImmutableList<CamSegment> video = ImmutableList<CamSegment>.Empty;
             foreach (var segment in segments)
             {
                 if (takeAudio && segment.IsSilent)
@@ -133,8 +139,8 @@ namespace Pree.Camtasia
                         yield return new Scene(audio, video, position);
                     }
                     position += audio.Sum(a => a.CamDuration);
-                    audio = ImmutableList<Segment>.Empty;
-                    video = ImmutableList<Segment>.Empty;
+                    audio = ImmutableList<CamSegment>.Empty;
+                    video = ImmutableList<CamSegment>.Empty;
                 }
                 if (segment.IsSilent)
                 {
@@ -155,7 +161,7 @@ namespace Pree.Camtasia
             }
         }
 
-        private void TrimAudio(IEnumerable<Segment> segments)
+        private void TrimAudio(IEnumerable<CamSegment> segments)
         {
             var clips = _document
                 .SelectTokens("$.timeline.sceneTrack.scenes[*].csml.tracks[*].medias[*]")
@@ -276,7 +282,7 @@ namespace Pree.Camtasia
             }
         }
 
-        private void TrimUnifiedMedia(IEnumerable<Segment> segments)
+        private void TrimUnifiedMedia(IEnumerable<CamSegment> segments)
         {
             var clips = _document
                 .SelectTokens("$.timeline.sceneTrack.scenes[*].csml.tracks[*].medias[*]")

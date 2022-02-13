@@ -9,9 +9,9 @@ namespace Pree.Camtasia
 {
     public class TimeLog
     {
-        private readonly List<Segment> _segments;
+        private readonly List<ContinuousSegment> _segments;
 
-        private TimeLog(List<Segment> segments)
+        private TimeLog(List<ContinuousSegment> segments)
         {
             _segments = segments;
         }
@@ -20,7 +20,7 @@ namespace Pree.Camtasia
         {
             try
             {
-                List<Segment> segments = new List<Segment>();
+                List<ContinuousSegment> segments = new List<ContinuousSegment>();
 
                 using (StreamReader reader = new StreamReader(filename))
                 {
@@ -31,7 +31,7 @@ namespace Pree.Camtasia
                             .Select(s => s.Trim())
                             .Select(s => DateTime.Parse(s))
                             .ToArray();
-                        segments.Add(new Segment(times[0], times[1], false));
+                        segments.Add(new ContinuousSegment(times[0], times[1]));
                     }
                 }
                 return new TimeLog(segments);
@@ -42,7 +42,7 @@ namespace Pree.Camtasia
             }
         }
 
-        public IEnumerable<Segment> Segments
+        public IEnumerable<ContinuousSegment> Segments
         {
             get { return _segments; }
         }
