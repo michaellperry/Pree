@@ -227,16 +227,13 @@ namespace Pree.Camtasia
                         int segmentDuration = segment.CamDuration;
                         if (segmentDuration > 0)
                         {
-                            if (!segment.IsSilent)
-                            {
-                                var newClip = clip.DeepClone();
-                                newClip["id"] = _nextId++;
-                                newClip["start"] = sceneStart + targetStart;
-                                newClip["duration"] = segmentDuration;
-                                newClip["mediaStart"] = mediaStart + scene.Position + targetStart - start;
-                                newClip["mediaDuration"] = segmentDuration;
-                                parent.Add(newClip);
-                            }
+                            var newClip = clip.DeepClone();
+                            newClip["id"] = _nextId++;
+                            newClip["start"] = sceneStart + targetStart;
+                            newClip["duration"] = segmentDuration;
+                            newClip["mediaStart"] = mediaStart + scene.Position + targetStart - start;
+                            newClip["mediaDuration"] = segmentDuration;
+                            parent.Add(newClip);
 
                             segmentStart += segmentDuration;
                             targetStart += segmentDuration;
@@ -367,6 +364,8 @@ namespace Pree.Camtasia
                     int targetStart = 0;
                     foreach (var segment in scene.VideoSegments)
                     {
+                        bool isLastSegmentInScene = segment == scene.VideoSegments.Last();
+
                         int segmentStart = segment.CamStart;
                         int segmentEnd = segment.CamStart + segment.CamDuration;
 
@@ -374,37 +373,36 @@ namespace Pree.Camtasia
                             segmentStart = start;
                         if (segmentEnd > start + duration)
                             segmentEnd = start + duration;
+                        if (isLastSegmentInScene)
+                            segmentEnd += scene.Duration - scene.VideoSegments.Sum(v => v.CamDuration);
                         int segmentDuration = segmentEnd - segmentStart;
                         if (segmentDuration > 0)
                         {
-                            if (segment.IsSilent)
+                            var newClip = clip.DeepClone();
+                            newClip["id"] = _nextId++;
+                            newClip["start"] = sceneStart + targetStart;
+                            newClip["duration"] = segmentDuration;
+                            newClip["mediaStart"] = mediaStart + segmentStart - start;
+                            newClip["mediaDuration"] = segmentDuration;
+
+                            var newAmfile = newClip["audio"];
+                            newAmfile["id"] = _nextId++;
+                            newAmfile["start"] = sceneStart + targetStart;
+                            newAmfile["duration"] = segmentDuration;
+                            newAmfile["mediaStart"] = mediaStart + segmentStart - start;
+                            newAmfile["mediaDuration"] = segmentDuration;
+
+                            var newScreenvmfile = newClip["video"];
+                            if (newScreenvmfile != null)
                             {
-                                var newClip = clip.DeepClone();
-                                newClip["id"] = _nextId++;
-                                newClip["start"] = sceneStart + targetStart;
-                                newClip["duration"] = segmentDuration;
-                                newClip["mediaStart"] = mediaStart + segmentStart - start;
-                                newClip["mediaDuration"] = segmentDuration;
-
-                                var newAmfile = newClip["audio"];
-                                newAmfile["id"] = _nextId++;
-                                newAmfile["start"] = sceneStart + targetStart;
-                                newAmfile["duration"] = segmentDuration;
-                                newAmfile["mediaStart"] = mediaStart + segmentStart - start;
-                                newAmfile["mediaDuration"] = segmentDuration;
-
-                                var newScreenvmfile = newClip["video"];
-                                if (newScreenvmfile != null)
-                                {
-                                    newScreenvmfile["id"] = _nextId++;
-                                    newScreenvmfile["start"] = sceneStart + targetStart;
-                                    newScreenvmfile["duration"] = segmentDuration;
-                                    newScreenvmfile["mediaStart"] = mediaStart + segmentStart - start;
-                                    newScreenvmfile["mediaDuration"] = segmentDuration;
-                                }
-
-                                parent.Add(newClip);
+                                newScreenvmfile["id"] = _nextId++;
+                                newScreenvmfile["start"] = sceneStart + targetStart;
+                                newScreenvmfile["duration"] = segmentDuration;
+                                newScreenvmfile["mediaStart"] = mediaStart + segmentStart - start;
+                                newScreenvmfile["mediaDuration"] = segmentDuration;
                             }
+
+                            parent.Add(newClip);
 
                             targetStart += segmentDuration;
                         }
